@@ -4,3 +4,4 @@ languagelearning/local_settings.py
 .DS_Store
 log/
 *#
+node_modules
