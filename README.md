@@ -38,9 +38,10 @@ you'll need to make sure you've got phantomjs.  On Mac, that would be:
 
     $ brew install phantomjs
 
-On debian:
-
-    $ sudo apt-get install phantomjs
+On debian/ubuntu, you will need to install phantomjs from source to have the 
+latest version (the repository currently contains 1.6.0). Download the source
+from http://phantomjs.org/download.html and create a symlink to the 
+`bin/phantomjs` binary from your path.
 
 Then, in the root project directory:
 
