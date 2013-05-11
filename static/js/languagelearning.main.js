@@ -1,5 +1,7 @@
 /*jslint browser: true, nomen: true*/
-/*globals requirejs*/
+/*globals requirejs, DEBUG_MODE:true*/
+
+DEBUG_MODE = true;
 
 requirejs.config({
 
