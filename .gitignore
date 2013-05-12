@@ -5,3 +5,5 @@ languagelearning/local_settings.py
 log/
 *#
 node_modules
+var/cache/*
+var/db.sqlite3
