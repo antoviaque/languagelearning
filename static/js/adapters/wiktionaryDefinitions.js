@@ -32,13 +32,13 @@ define([
      * Obtain promise that will contain array of definitions when resolved.
      * @returns {jQuery.Promise}
      */
-    WiktionaryDefinitions.prototype.definitions = function () {
+    WiktionaryDefinitions.prototype.request = function () {
         var self = this,
             $dfd = new $.Deferred();
         $.ajax({
             method: 'get',
             dataType: 'jsonp',
-            url: this._protocol + "://" +
+            url: this._protocol + "//" +
                  this._language + ".wiktionary.org/w/api.php?" +
                  $.param({
                     "action": "query",

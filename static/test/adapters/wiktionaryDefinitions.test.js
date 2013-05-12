@@ -15,13 +15,13 @@ define([
         it("provides German definitions for a word", function (done) {
             var mudigkeit, bezeichnen, klage;
 
-            mudigkeit = new Definitions('http', 'de', 'Müdigkeit');
-            bezeichnen = new Definitions('http', 'de', 'bezeichnen');
-            klage = new Definitions('http', 'de', 'Klage');
+            mudigkeit = new Definitions('http:', 'de', 'Müdigkeit');
+            bezeichnen = new Definitions('http:', 'de', 'bezeichnen');
+            klage = new Definitions('http:', 'de', 'Klage');
 
-            $.when(mudigkeit.definitions(),
-                   bezeichnen.definitions(),
-                   klage.definitions()
+            $.when(mudigkeit.request(),
+                   bezeichnen.request(),
+                   klage.request()
                   ).done(function (mudigkeitDefs, bezeichnenDefs, klageDefs) {
                 expect(mudigkeitDefs).to.eql([
                     "[1] Zustand des Schlafmangels oder des Unausgeruhtseins"
