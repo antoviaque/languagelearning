@@ -39,10 +39,9 @@
     <script>
       mocha.checkLeaks();
       mocha.globals(['jQuery']);
+      // Only run tests on page in case we're using PhantomJS.
       if (window.mochaPhantomJS) {
         mochaPhantomJS.run();
-        } else {
-        mocha.run();
       }
     </script>
     <!-- TODO end test runner -->
