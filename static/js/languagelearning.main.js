@@ -1,5 +1,7 @@
 /*jslint browser: true, nomen: true*/
-/*globals requirejs*/
+/*globals requirejs, DEBUG_MODE:true*/
+
+DEBUG_MODE = true;
 
 requirejs.config({
 
@@ -52,15 +54,28 @@ requirejs([
     'backbone',
     'json2',
     'tracekit',
-    'views/searchBox'
-], function ($, _, backbone, json, tracekit, SearchBoxView) {
+    'models/definitions',
+    'views/searchBox',
+    'views/definitions'
+], function ($, _, backbone, json, tracekit, DefinitionsModel, SearchBoxView,
+             DefinitionsView) {
     "use strict";
 
     $(document).ready(function () {
-        var $searchbox = $('div#searchbox').get(0),
+        var searchboxEl = $('div#searchbox').get(0),
             searchBoxView = new SearchBoxView({
-                el: $searchbox
+                el: searchboxEl
+            }),
+            definitionsModel = new DefinitionsModel({
+                word: decodeURIComponent(window.location.search.substring(3)), // TODO via router
+                language: 'de' // TODO not hardcoded
+            }),
+            definitionsEl = $('#definitions').get(0),
+            definitionsView = new DefinitionsView({
+                el: definitionsEl,
+                model: definitionsModel
             });
             searchBoxView.render();
+            definitionsModel.fetch();
     });
 });
