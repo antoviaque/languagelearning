@@ -70,14 +70,14 @@ requirejs.config({
 
 requirejs([
     'test/adapters/wiktionaryDefinitionProcessors.test',
-    'test/adapters/wiktionaryDefinitions.test'
+    'test/adapters/wiktionaryDefinitions.test',
+    'test/adapters/search.test'
 ], function () {
     "use strict";
 
     if (window.mochaPhantomJS) {
         mochaPhantomJS.run();
     } else {
-        //throw("JS tests should only be run in PhantomJS.");
         mocha.run();
     }
 });

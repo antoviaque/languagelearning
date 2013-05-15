@@ -1,43 +1,45 @@
-/*jslint browser: true, devel: true, nomen: true */
+/*jslint browser: true, nomen: true */
 /*global define */
 
 define([
     'underscore',
     'mustache',
-    'models/sample',
-    'collections/sample',
     'views/base',
     'text!templates/searchBox.mustache',
     'json2',
     'jquery',
     'tracekit'
-], function (_, mustache, SampleModel, SampleCollection,
-            BaseView, searchBoxTemplate, json, $, tracekit) {
+], function (_, mustache, BaseView, searchBoxTemplate, json, $, tracekit) {
     "use strict";
 
     return BaseView.extend({
 
-        events: {
+        tagName: 'div',
 
+        events: {
+            'submit form.search-form': 'submit'
         },
 
-        initialize: function (options) {
+        'id': 'searchbox',
 
+        initialize: function (options) {
+            this._router = options.router;
+            this.expression = '';
         },
 
         render: function () {
-            var loc = window.location,
-
-                // TODO temp: maintaining existing functionality
-                data = {
-                    searchText: decodeURIComponent(loc.search.substring(3))
-                },
-
-                rendered = mustache.render(searchBoxTemplate, data);
-
-            this.$el.html(rendered);
+            this.$el.html(mustache.render(searchBoxTemplate, {
+                expression: this.expression
+            }));
 
             return this;
+        },
+
+        submit: function (evt) {
+            evt.preventDefault();
+
+            this._router.expression($('input.search-text', this.$el).val());
+            return false;
         }
     });
 });

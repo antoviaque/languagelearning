@@ -56,7 +56,8 @@ class SearchAPIView(APIView):
     def query_translation(self):
         translator = GoogleTranslator()
         try:
-            response = translator.translate(self.expression, source=self.source, target=self.target)
+            response = translator.translate(self.expression.encode('utf-8'),
+                                            source=self.source, target=self.target)
         except Exception as e:
             raise ErrorResponse("; ".join(e.args))
 

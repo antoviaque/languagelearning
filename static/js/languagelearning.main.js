@@ -54,28 +54,15 @@ requirejs([
     'backbone',
     'json2',
     'tracekit',
-    'models/definitions',
-    'views/searchBox',
-    'views/definitions'
-], function ($, _, backbone, json, tracekit, DefinitionsModel, SearchBoxView,
-             DefinitionsView) {
+    'routers/languagelearning'
+], function ($, _, backbone, json, tracekit, LanguageLearningRouter) {
     "use strict";
 
     $(document).ready(function () {
-        var searchboxEl = $('div#searchbox').get(0),
-            searchBoxView = new SearchBoxView({
-                el: searchboxEl
-            }),
-            definitionsModel = new DefinitionsModel({
-                word: decodeURIComponent(window.location.search.substring(3)), // TODO via router
-                language: 'de' // TODO not hardcoded
-            }),
-            definitionsEl = $('#definitions').get(0),
-            definitionsView = new DefinitionsView({
-                el: definitionsEl,
-                model: definitionsModel
-            });
-            searchBoxView.render();
-            definitionsModel.fetch();
+        var router = new LanguageLearningRouter();
+
+        backbone.history.start({
+            pushState: true
+        });
     });
 });

@@ -104,7 +104,7 @@ ROOT_URLCONF = 'languagelearning.urls'
 WSGI_APPLICATION = 'languagelearning.wsgi.application'
 
 TEMPLATE_DIRS = (
-    spath('templates'),
+    spath('static/templates'),
 )
 
 INSTALLED_APPS = (
