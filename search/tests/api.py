@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 
 # Imports ###########################################################
 
@@ -21,36 +22,36 @@ class SearchAPITest(TestCase):
             self.assertEqual(response_obj, reference)
         except AssertionError:
             expected = json.dumps(reference, indent=2, sort_keys=True)
-            message = "\nReturned:\n{returned}\n\nExpected:\n{expected}".format(returned=response.content,
-                                                                                expected=expected)
+            message = u'\nReturned:\n{returned}\n\nExpected:\n{expected}'.format(returned=response.content,
+                                                                                 expected=expected)
             raise AssertionError(message)
 
     def test_api_search_missing_parameters(self):
-        response = self.client.get('/api/v1/search')
+        response = self.client.get(u'/api/v1/search')
         self.api_check(response, {
-                "error": "'expression' can't be empty", 
-                "expression": "", 
-                "source": "", 
-                "status": "error", 
-                "target": "en"
+                u'error': u"'expression' can't be empty",
+                u'expression': u'', 
+                u'source': u'', 
+                u'status': u'error', 
+                u'target': u'en'
             })
         
-        response = self.client.get('/api/v1/search?expression=')
+        response = self.client.get(u'/api/v1/search?expression=')
         self.api_check(response, {
-                "error": "'expression' can't be empty", 
-                "expression": "", 
-                "source": "", 
-                "status": "error", 
-                "target": "en"
+                u'error': u"'expression' can't be empty", 
+                u'expression': u'', 
+                u'source': u'', 
+                u'status': u'error', 
+                u'target': u'en'
             })
         
-        response = self.client.get('/api/v1/search?expression=test')
+        response = self.client.get(u'/api/v1/search?expression=test')
         self.api_check(response, {
-                "error": "No query type specified", 
-                "expression": "test", 
-                "source": "", 
-                "status": "error", 
-                "target": "en"
+                u'error': u'No query type specified', 
+                u'expression': u'test', 
+                u'source': u'', 
+                u'status': u'error', 
+                u'target': u'en'
             })
         
     @patch('search.views.search.GoogleTranslator')
@@ -64,26 +65,26 @@ class SearchAPITest(TestCase):
         # Predetermine translation results
         def mock_translate(*args, **kwargs):
             return {
-                    'data': {
-                        'translations': [{
-                            'translatedText': 'good day',
-                            'detectedSourceLanguage': 'pt'
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'good day eèÉɘ',
+                            u'detectedSourceLanguage': u'pt'
                         }]
                     }
                 }
         mock_translator.translate.side_effect = mock_translate
 
-        response = self.client.get('/api/v1/search?expression=bom%20dia&query_type=translation')
+        response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
         self.api_check(response, {
-                "expression": "bom dia", 
-                "results": {
-                    "translation": "good day"
+                u'expression': u'bom dia eèÉɘ',
+                u'results': {
+                    u'translation': u'good day eèÉɘ'
                 }, 
-                "source": "pt", 
-                "status": "success", 
-                "target": "en"
+                u'source': u'pt', 
+                u'status': u'success', 
+                u'target': u'en'
             })
-        self.assertEqual(mock_translator.mock_calls, [call.translate(u'bom dia', source='', target='en')])
+        self.assertEqual(mock_translator.mock_calls, [call.translate(u'bom dia eèÉɘ', source=u'', target=u'en')])
         
     @patch('search.views.search.GoogleTranslator')
     def test_api_search_translation_error(self, MockGoogleTranslator):
@@ -95,44 +96,44 @@ class SearchAPITest(TestCase):
 
         # Translation returns an error message
         def mock_translate(*args, **kwargs):
-            return {'error': ['Error message']}
+            return {u'error': [u'Error message']}
         mock_translator.translate.side_effect = mock_translate
 
-        response = self.client.get('/api/v1/search?expression=bom%20dia&query_type=translation')
+        response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
         self.api_check(response, {
-                "error": '["Error message"]', 
-                "expression": "bom dia", 
-                "source": "", 
-                "status": "error", 
-                "target": "en"
+                u'error': u'["Error message"]',
+                u'expression': u'bom dia eèÉɘ', 
+                u'source': u'', 
+                u'status': u'error', 
+                u'target': u'en'
             })
         
         # Translation returns an unexpected format
         def mock_translate(*args, **kwargs):
-            return {'something': 'unexpected'}
+            return {u'something': u'unexpected'}
         mock_translator.translate.side_effect = mock_translate
 
-        response = self.client.get('/api/v1/search?expression=bom%20dia&query_type=translation')
+        response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
         self.api_check(response, {
-                "error": 'No translation found',
-                "expression": "bom dia", 
-                "source": "", 
-                "status": "error", 
-                "target": "en"
+                u'error': u'No translation found',
+                u'expression': u'bom dia eèÉɘ', 
+                u'source': u'', 
+                u'status': u'error', 
+                u'target': u'en'
             })
         
         # Translation throws an exception
         def mock_translate(*args, **kwargs):
-            raise KeyError('test error one')
+            raise KeyError(u'test error one')
         mock_translator.translate.side_effect = mock_translate
 
-        response = self.client.get('/api/v1/search?expression=bom%20dia&query_type=translation')
+        response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
         self.api_check(response, {
-                "error": 'test error one',
-                "expression": "bom dia", 
-                "source": "", 
-                "status": "error", 
-                "target": "en"
+                u'error': u'test error one',
+                u'expression': u'bom dia eèÉɘ', 
+                u'source': u'', 
+                u'status': u'error', 
+                u'target': u'en'
             })
         
         
