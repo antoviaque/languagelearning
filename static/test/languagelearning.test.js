@@ -20,6 +20,7 @@ requirejs.config({
         'tracekit': 'vendor/tracekit',
         'underscore': 'vendor/underscore',
         'test': '../test',
+        'fixtures': '../test/fixtures',
         'expect': '../test/vendor/expect',
         'mocha': '../test/vendor/mocha',
         'sinon': '../test/vendor/sinon'
@@ -49,7 +50,7 @@ requirejs.config({
             exports: 'expect'
         },
         'sinon': {
-            exports: 'Sinon'
+            exports: 'sinon'
         },
         'mocha': {
             exports: 'mocha',

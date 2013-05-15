@@ -1,13 +1,14 @@
 /*jslint multistr:true*/
-/*globals beforeEach, describe, it*/
+/*globals beforeEach, describe, it, before, after*/
 define([
    'underscore',
    'jquery',
    'adapters/wiktionaryDefinitions',
    'expect',
-   'mocha',
-   'sinon'
-], function (_, $, Definitions, expect) {
+   'sinon',
+   'mocha'
+], function (_, $, Definitions, expect, sinon, mudigkeitFixture,
+             bezeichnenFixture, klageFixture) {
     "use strict";
 
     describe("German definitions", function () {

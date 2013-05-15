@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals describe, it, $, before, beforeEach, afterEach, expect*/
+/*globals describe, it, $, before, beforeEach, after afterEach, expect, sinon*/
 
 (function () {
     "use strict";
@@ -60,11 +60,35 @@
 
         describe("after submitting an expression for translation", function () {
 
-            var expression = 'bom dia';
+            var expression = 'bom dia',
+                server;
+
+            before(function () {
+                server = sinon.fakeServer.create();
+            });
 
             beforeEach(function () {
+                server.respondWith("GET", /\/api\/v1\/search/,
+                                   [200, { "Content-Type": "application/json" },
+                                       JSON.stringify({
+                                           "expression": "bom dia",
+                                           "results": {
+                                               "translation": "good day"
+                                           },
+                                           "source": "pt",
+                                           "status": "success",
+                                           "target": "en"
+                                       })
+                                   ]);
+
                 $('input.search-text').val(expression);
                 $('form.search-form').trigger('submit');
+
+                server.respond();
+            });
+
+            after(function () {
+                server.restore();
             });
 
             it('should display the original expression', function () {
