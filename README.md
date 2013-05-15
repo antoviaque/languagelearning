@@ -18,6 +18,21 @@ Install the dependencies:
     $ mkvirtualenv languagelearning
     $ pip install -r requirements.txt
 
+Configuration
+-------------
+
+Edit the configuration file:
+
+    $ cp local_settings.py.dist local_settings.py
+    $ gvim local_settings.py
+
+To set the `GOOGLE_API_KEY` variable:
+
+* Go to https://code.google.com/apis/console
+* Get the API key at the bottom of the page
+* Activate Google Translate in "Services"
+* Setup billing
+
 Running the server
 ------------------
 
@@ -30,8 +45,10 @@ directory and avoid having to reload the server during development):
 
 Then go to http://localhost:8000
 
-Running browser tests
----------------------
+Running the tests
+-----------------
+
+### Browser tests
 
 phantomjs is used for automated headless browser testing.  To run these tests,
 you'll need to make sure you've got phantomjs.  On Mac, that would be:
@@ -50,3 +67,19 @@ Then, in the root project directory:
 Finally, in the root project directory:
 
     $ node_modules/.bin/mocha-phantomjs -R dot http://localhost:8000/static/index.html --view 800x600 
+
+### Server tests
+
+To run all tests:
+
+    $ ./manage.py test
+
+To run only the application tests (excluding Django & external packages):
+
+    $ ./manage.py test languagelearning
+
+To run a specific test:
+
+    $ ./manage.py test languagelearning.ASampleTestClass.test_sample_test
+
+
