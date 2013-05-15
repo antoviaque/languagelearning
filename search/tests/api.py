@@ -19,13 +19,13 @@ class APITest(TestCase):
         logging.disable(logging.CRITICAL)
 
         # Local configuration shouldn't change test results
-        settings.DEBUG = False
+        settings.DEBUG = True
 
     def api_check(self, response, status_code, reference):
         """
         Compare the JSON content of the response with a reference object, must be equal
         """
-        self.assertEqual(response.status_code, status_code)
+        self.assertEqual(response.status_code, status_code, response.content)
         response_obj = json.loads(response.content)
         try:
             self.assertEqual(response_obj, reference)
@@ -102,8 +102,36 @@ class SearchAPITest(APITest):
                 u'status': u'success', 
                 u'target': u'en'
             })
-        self.assertEqual(mock_translator.mock_calls, [call.translate(u'bom dia eèÉɘ', source=u'', target=u'en')])
+        self.assertEqual(mock_translator.mock_calls, [call.translate('bom dia e\xc3\xa8\xc3\x89\xc9\x98', source=u'', target=u'en')])
         
+    @patch('search.views.search.GoogleTranslator._fetch_data')
+    def test_api_search_translation_innermock(self, mock_fetch_data):
+        """
+        Only mock the actual fetching of data, to allow to catch unicode processing errors
+        from googletranslate lib
+        """
+        def mock_fetch_data_side_effect(*args, **kwargs):
+            return json.dumps({
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'good day eèÉɘ',
+                            u'detectedSourceLanguage': u'pt'
+                        }]
+                    }
+                })
+        mock_fetch_data.side_effect = mock_fetch_data_side_effect
+
+        response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
+        self.api_check(response, 200, {
+                u'expression': u'bom dia eèÉɘ',
+                u'results': {
+                    u'translation': u'good day eèÉɘ'
+                }, 
+                u'source': u'pt', 
+                u'status': u'success', 
+                u'target': u'en'
+            })
+
     @patch('search.views.search.GoogleTranslator')
     def test_api_search_translation_error_message(self, MockGoogleTranslator):
         """
@@ -131,6 +159,7 @@ class SearchAPITest(APITest):
             return {u'something': u'unexpected'}
         self.set_mock_translate(MockGoogleTranslator, mock_translate)
 
+        settings.DEBUG = False
         response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
         self.api_check(response, 400, {
                 u'error': u'Sorry! An error has occurred.',
@@ -149,6 +178,7 @@ class SearchAPITest(APITest):
             raise KeyError(u'test error one')
         self.set_mock_translate(MockGoogleTranslator, mock_translate)
 
+        settings.DEBUG = False
         response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
         self.api_check(response, 400, {
                 u'error': u'Sorry! An error has occurred.',
@@ -172,5 +202,4 @@ class SearchAPITest(APITest):
         self.assertRaises(KeyError, 
                           self.client.get, 
                           u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
-       
 

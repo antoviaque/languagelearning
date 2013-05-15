@@ -55,7 +55,8 @@ class SearchAPIView(APIView):
     
     def query_translation(self):
         translator = GoogleTranslator()
-        response = translator.translate(self.expression, source=self.source, target=self.target)
+        expression = self.expression.encode('utf8') # google translate lib expects a bytestring
+        response = translator.translate(expression, source=self.source, target=self.target)
 
         if u'error' in response:
             raise ErrorResponse(json.dumps(response[u'error']))
