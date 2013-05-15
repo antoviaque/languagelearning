@@ -1,9 +1,17 @@
 
 # Imports ###########################################################
 
+import logging
+
+from django.conf import settings
 from django.views.generic.base import View
 
 from utils.json import JSONResponseMixin
+
+
+# Logging ###########################################################
+
+logger = logging.getLogger(__name__)
 
 
 # Exceptions ########################################################
@@ -12,7 +20,9 @@ class ErrorResponse(Exception):
     """
     Raised from an APIView method to trigger returning a formatted JSON error response
     """
-    pass
+    @property
+    def description(self):
+        return u'; '.join(self.args)
 
 
 # Views #############################################################
@@ -28,5 +38,13 @@ class APIView(JSONResponseMixin, View):
             return super(APIView, self).dispatch(request, *args, **kwargs)
         except ErrorResponse as e:
             return self.handle_error(request, e)
+        except Exception as e:
+            if settings.DEBUG:
+                raise
+            else:
+                # TODO LOCAL
+                e.description = u'Sorry! An error has occurred.'
+                logger.exception(e)
+                return self.handle_error(request, e)
 
 

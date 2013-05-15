@@ -28,7 +28,7 @@ class SelectiveTestSuiteRunner(DjangoTestSuiteRunner):
             for app in get_apps():
                 pkg = app.__name__.split('.')[:-1]
                 pkg = '.'.join(pkg)
-                excluded_apps = getattr(settings, 'TEST_EXCLUDED_APPS', [])
+                excluded_apps = getattr(settings, u'TEST_EXCLUDED_APPS', [])
                 if pkg not in excluded_apps:
                     suite.addTest(build_suite(app))
 
@@ -48,7 +48,7 @@ class SelectiveTestSuiteRunnerWithCoverage(SelectiveTestSuiteRunner):
     b) A specific app is being tested.
     """
     def run_tests(self, test_labels, extra_tests=None, **kwargs):
-        self.enable_coverage = hasattr(settings, 'COVERAGE_MODULES')
+        self.enable_coverage = hasattr(settings, u'COVERAGE_MODULES')
 
         if self.enable_coverage:
             coverage.use_cache(0)
@@ -61,9 +61,9 @@ class SelectiveTestSuiteRunnerWithCoverage(SelectiveTestSuiteRunner):
         if self.enable_coverage:
             coverage.stop()
      
-            print '-------------------------------------------------'
-            print 'Coverage'
-            print '-------------------------------------------------'
+            print u'-------------------------------------------------'
+            print u'Coverage'
+            print u'-------------------------------------------------'
      
             # Report coverage
             coverage_modules = []
