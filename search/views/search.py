@@ -50,23 +50,18 @@ class SearchAPIView(APIView):
                 u'source': self.source,
                 u'target': self.target,
                 u'status': u'error',
-                u'error': u'; '.join(e.args)
-            })
+                u'error': e.description
+            }, status=400)
     
     def query_translation(self):
         translator = GoogleTranslator()
-        try:
-            response = translator.translate(self.expression, source=self.source, target=self.target)
-        except Exception as e:
-            raise ErrorResponse(u'; '.join(e.args))
+        response = translator.translate(self.expression, source=self.source, target=self.target)
 
         if u'error' in response:
             raise ErrorResponse(json.dumps(response[u'error']))
-        try:
-            translation = response[u'data'][u'translations'][0]
-            translated_text = translation[u'translatedText']
-        except KeyError:
-            raise ErrorResponse(u'No translation found')
+        
+        translation = response[u'data'][u'translations'][0]
+        translated_text = translation[u'translatedText']
 
         if not self.source and u'detectedSourceLanguage' in translation:
             self.source = translation[u'detectedSourceLanguage']
