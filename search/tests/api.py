@@ -203,3 +203,54 @@ class SearchAPITest(APITest):
                           self.client.get, 
                           u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
 
+    def set_mock_images_search(self, MockBingSearchAPI, mock_search):
+        # Mock class instance
+        mock_bing = Mock()
+        def create_mock_bing(*args, **kwargs):
+            return mock_bing
+        MockBingSearchAPI.side_effect = create_mock_bing
+        
+        mock_bing.search.side_effect = mock_search
+        return mock_bing
+
+    @patch('search.views.search.BingSearchAPI')
+    def test_api_search_images(self, MockBingSearchAPI):
+        # Predetermine translation results
+        def mock_search(*args, **kwargs):
+            return { "d": { "results": [{ "Image": [{
+                "Thumbnail": {
+                    "MediaUrl": "http://ts2.mm.bing.net/th?id=H.4742791658736641&pid=15.1", 
+                    "Height": "300", 
+                    "Width": "194", 
+                    "FileSize": "14554"
+                }}]}]}}
+        mock_bing = self.set_mock_images_search(MockBingSearchAPI, mock_search)
+
+        response = self.client.get(u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=images')
+        self.api_check(response, 200, {
+                u'expression': u'bom dia eèÉɘ',
+                u'results': {
+                    "images": [{
+                        "meta": {
+                          "engine": "bing images"
+                        }, 
+                        "size": [
+                          "194", 
+                          "300"
+                        ], 
+                        "url": "http://ts2.mm.bing.net/th?id=H.4742791658736641&pid=15.1"
+                    }],
+                }, 
+                u'source': u'',
+                u'status': u'success', 
+                u'target': u'en'
+            })
+        self.assertEqual(mock_bing.mock_calls, [
+                call.search('image', 'bom dia e\xc3\xa8\xc3\x89\xc9\x98', {
+                        '$format': 'json',
+                        '$top': 10,
+                        '$skip': 0 
+                    })
+            ])
+        
+        
