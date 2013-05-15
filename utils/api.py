@@ -1,10 +1,17 @@
 
 # Imports ###########################################################
 
+import logging
+
 from django.conf import settings
 from django.views.generic.base import View
 
 from utils.json import JSONResponseMixin
+
+
+# Logging ###########################################################
+
+logger = logging.getLogger(__name__)
 
 
 # Exceptions ########################################################
@@ -35,7 +42,9 @@ class APIView(JSONResponseMixin, View):
             if settings.DEBUG:
                 raise
             else:
+                # TODO LOCAL
                 e.description = u'Sorry! An error has occurred.'
-            return self.handle_error(request, e)
+                logger.exception(e)
+                return self.handle_error(request, e)
 
 
