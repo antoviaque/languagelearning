@@ -35,7 +35,7 @@ class SearchAPIView(APIView):
         
         results = {}
         for query_type in self.query_types:
-            if query_type not in (u'translation', 'images'):
+            if query_type not in (u'translation', u'images'):
                 continue
             results[query_type] = getattr(self, u'query_{0}'.format(query_type))()
 
@@ -75,18 +75,18 @@ class SearchAPIView(APIView):
     def query_images(self):
         bing = BingSearchAPI(settings.BING_API_KEY)
         expression = self.expression.encode('utf8') # bing lib expects a bytestring
-        response = bing.search('image', expression, {
-                '$format': 'json',
-                '$top': 10,
-                '$skip': 0 
+        response = bing.search(u'image', expression, {
+                u'$format': u'json',
+                u'$top': 10,
+                u'$skip': 0 
             })
 
         images = []
-        for image in response['d']['results'][0]['Image']:
+        for image in response[u'd'][u'results'][0][u'Image']:
             images.append({
-                    'url': image['Thumbnail']['MediaUrl'],
-                    'size': [image['Thumbnail']['Width'], image['Thumbnail']['Height']],
-                    "meta": { "engine": "bing images" }
+                    u'url': image[u'Thumbnail'][u'MediaUrl'],
+                    u'size': [image[u'Thumbnail'][u'Width'], image[u'Thumbnail'][u'Height']],
+                    u'meta': { u'engine': u'bing images' }
                 })
 
         return images

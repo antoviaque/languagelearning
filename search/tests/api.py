@@ -230,15 +230,15 @@ class SearchAPITest(APITest):
         self.api_check(response, 200, {
                 u'expression': u'bom dia eèÉɘ',
                 u'results': {
-                    "images": [{
-                        "meta": {
-                          "engine": "bing images"
+                    u'images': [{
+                        u'meta': {
+                          u'engine': u'bing images'
                         }, 
-                        "size": [
-                          "194", 
-                          "300"
+                        u'size': [
+                          u'194', 
+                          u'300'
                         ], 
-                        "url": "http://ts2.mm.bing.net/th?id=H.4742791658736641&pid=15.1"
+                        u'url': u'http://ts2.mm.bing.net/th?id=H.4742791658736641&pid=15.1'
                     }],
                 }, 
                 u'source': u'',
