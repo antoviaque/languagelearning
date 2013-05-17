@@ -27,8 +27,8 @@ define([
                     //source: '',  // TODO
                     //target: '', // TODO
                     query_type: [
-                        'translation'
-                        //'images', // TODO
+                        'translation',
+                        'images'
                         //'definitions' // TODO
                     ]
                 }, true)

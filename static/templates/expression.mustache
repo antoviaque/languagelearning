@@ -1,10 +1,12 @@
 {{#results}}
 <h1 id="translation">{{{translation}}}</h1>
 
-{{#images}}
-<img src="{{{url}}}" style="float:left" />
-{{/images}}
-<div style="clear: both"></div>
+<div class="expression-images">
+  {{#images}}
+  <img class="thumb" src="{{{url}}}" 
+       style="width: {{{normalized_width}}}px; height: {{{normalized_height}}}px" />
+  {{/images}}
+</div>
 
 <h2>Definition</h2>
 

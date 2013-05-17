@@ -80,7 +80,7 @@ class SearchAPIView(APIView):
         expression = expression.encode('utf8')
         response = bing.search(u'image', expression, {
                 u'$format': u'json',
-                u'$top': 10,
+                u'$top': 6,
                 u'$skip': 0 
             })
 

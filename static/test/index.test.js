@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals describe, it, $, before, beforeEach, after afterEach, expect, sinon*/
+/*globals describe, it, $, before, beforeEach, after, afterEach, expect, sinon*/
 
 (function () {
     "use strict";
@@ -73,7 +73,14 @@
                                        JSON.stringify({
                                            "expression": "bom dia",
                                            "results": {
-                                               "translation": "good day"
+                                               "translation": "good day",
+                                               "images": [{
+                                                   "meta": {
+                                                     "engine": "bing images"
+                                                   }, 
+                                                   "size": ["240", "300"], 
+                                                   "url": "http://example.com/th?id=H.4832861395288193&pid=15.1"
+                                               }]
                                            },
                                            "source": "pt",
                                            "status": "success",
@@ -99,6 +106,16 @@
             it('should display a translation', function () {
                 expect($('#expression').is(':visible')).to.equal(true);
                 expect($('#translation').text()).to.equal('good day');
+            });
+
+            it('should display an image', function () {
+                expect($('.expression-images .thumb').is(':visible')).to.equal(true);
+                expect($('.expression-images .thumb').attr('src')).to.equal('http://example.com/th?id=H.4832861395288193&pid=15.1');
+            });
+            
+            it('should resize the images', function () {
+                expect($('.expression-images .thumb').css('width')).to.equal('80px');
+                expect($('.expression-images .thumb').css('height')).to.equal('100px');
             });
 
             it('should update the url', function () {
