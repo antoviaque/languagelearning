@@ -1,3 +1,6 @@
 # Get it from https://code.google.com/apis/console/
 GOOGLE_API_KEY = 'xxx'
 
+# Get it from http://www.bing.com/developers/
+BING_API_KEY = 'xxx'
+

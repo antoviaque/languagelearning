@@ -33,6 +33,12 @@ To set the `GOOGLE_API_KEY` variable:
 * Activate Google Translate in "Services"
 * Setup billing
 
+To set the `BING_API_KEY` variable:
+
+* Go to http://www.bing.com/developers/
+* Click on "Search API"
+* Click on "Sign up" for 5000 requests (free plan)
+
 Running the server
 ------------------
 
