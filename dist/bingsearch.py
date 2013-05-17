@@ -9,6 +9,9 @@ http://social.msdn.microsoft.com/Forums/pl-PL/windowsazuretroubleshooting/thread
 import requests # Get from https://github.com/kennethreitz/requests
 import string
 
+from urllib import quote
+
+
 class BingSearchAPI():
     bing_api = "https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/Composite?"
     
@@ -38,7 +41,7 @@ class BingSearchAPI():
             (which is oddly a word document file...pretty lame for a web api doc)
         '''
         request =  'Sources="' + sources    + '"'
-        request += '&Query="'  + str(query) + '"'
+        request += '&Query="'  + quote(query, '"\'+ :') + '"'
         for key,value in params.iteritems():
             request += '&' + key + '=' + str(value) 
         request = self.bing_api + self.replace_symbols(request)

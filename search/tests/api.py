@@ -217,12 +217,12 @@ class SearchAPITest(APITest):
     def test_api_search_images(self, MockBingSearchAPI):
         # Predetermine translation results
         def mock_search(*args, **kwargs):
-            return { "d": { "results": [{ "Image": [{
-                "Thumbnail": {
-                    "MediaUrl": "http://ts2.mm.bing.net/th?id=H.4742791658736641&pid=15.1", 
-                    "Height": "300", 
-                    "Width": "194", 
-                    "FileSize": "14554"
+            return { u'd': { u'results': [{ u'Image': [{
+                u'Thumbnail': {
+                    u'MediaUrl': u'http://ts2.mm.bing.net/th?id=H.4742791658736641&pid=15.1',
+                    u'Height': u'300',
+                    u'Width': u'194',
+                    u'FileSize': u'14554'
                 }}]}]}}
         mock_bing = self.set_mock_images_search(MockBingSearchAPI, mock_search)
 
@@ -246,7 +246,7 @@ class SearchAPITest(APITest):
                 u'target': u'en'
             })
         self.assertEqual(mock_bing.mock_calls, [
-                call.search('image', 'bom dia e\xc3\xa8\xc3\x89\xc9\x98', {
+                call.search('image', '+bom +dia +e\xc3\xa8\xc3\x89\xc9\x98', {
                         '$format': 'json',
                         '$top': 10,
                         '$skip': 0 

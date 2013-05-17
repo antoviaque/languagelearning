@@ -74,7 +74,10 @@ class SearchAPIView(APIView):
 
     def query_images(self):
         bing = BingSearchAPI(settings.BING_API_KEY)
-        expression = self.expression.encode('utf8') # bing lib expects a bytestring
+        # use exact search
+        expression = ' '.join([u'+{0}'.format(word) for word in self.expression.split(' ')])
+        # bing lib expects a bytestring
+        expression = expression.encode('utf8')
         response = bing.search(u'image', expression, {
                 u'$format': u'json',
                 u'$top': 10,
