@@ -3,6 +3,9 @@
 
 import json
 
+from django.conf import settings
+
+from dist.bingsearch import BingSearchAPI
 from dist.googletranslate import GoogleTranslator
 from utils.api import APIView, ErrorResponse
 
@@ -32,7 +35,7 @@ class SearchAPIView(APIView):
         
         results = {}
         for query_type in self.query_types:
-            if query_type not in (u'translation',):
+            if query_type not in (u'translation', u'images'):
                 continue
             results[query_type] = getattr(self, u'query_{0}'.format(query_type))()
 
@@ -68,4 +71,26 @@ class SearchAPIView(APIView):
             self.source = translation[u'detectedSourceLanguage']
 
         return translated_text
+
+    def query_images(self):
+        bing = BingSearchAPI(settings.BING_API_KEY)
+        # use exact search
+        expression = ' '.join([u'+{0}'.format(word) for word in self.expression.split(' ')])
+        # bing lib expects a bytestring
+        expression = expression.encode('utf8')
+        response = bing.search(u'image', expression, {
+                u'$format': u'json',
+                u'$top': 10,
+                u'$skip': 0 
+            })
+
+        images = []
+        for image in response[u'd'][u'results'][0][u'Image']:
+            images.append({
+                    u'url': image[u'Thumbnail'][u'MediaUrl'],
+                    u'size': [image[u'Thumbnail'][u'Width'], image[u'Thumbnail'][u'Height']],
+                    u'meta': { u'engine': u'bing images' }
+                })
+
+        return images
 
