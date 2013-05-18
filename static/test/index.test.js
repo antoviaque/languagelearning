@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals describe, it, $, before, beforeEach, after afterEach, expect, sinon*/
+/*globals describe, it, $, before, beforeEach, after, afterEach, expect, sinon*/
 
 (function () {
     "use strict";
