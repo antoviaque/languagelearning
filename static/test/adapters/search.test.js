@@ -1,5 +1,5 @@
 /*jslint */
-/*globals beforeEach, describe, it*/
+/*globals beforeEach, describe, it, sinon*/
 define([
    'underscore',
    'jquery',
@@ -11,9 +11,32 @@ define([
 
     describe("Search API", function () {
 
+        var server;
+
+        before(function () {
+            server = sinon.fakeServer.create();
+        });
+
+        after(function () {
+            server.restore();
+        });
+
         it("provides a translation for an expression", function (done) {
 
             var searchExpression = 'bom dia';
+
+            server.respondWith("GET", /\/api\/v1\/search/,
+                               [200, { "Content-Type": "application/json" },
+                                   JSON.stringify({
+                                       "expression": "bom dia",
+                                       "results": {
+                                           "translation": "good day"
+                                       },
+                                       "source": "pt",
+                                       "status": "success",
+                                       "target": "en"
+                                   })
+                               ]);
 
             searchAdapter.search(searchExpression)
                 .done(function (expression) {
@@ -29,6 +52,8 @@ define([
                 // TODO: Check for images results after merging pending changes
                 // to this test
             });
+
+            server.respond();
         });
     });
 });
