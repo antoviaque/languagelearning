@@ -1,5 +1,7 @@
 /*jslint browser: true, nomen: true*/
-/*globals requirejs*/
+/*globals requirejs, DEBUG_MODE:true*/
+
+DEBUG_MODE = true;
 
 requirejs.config({
 
@@ -52,15 +54,15 @@ requirejs([
     'backbone',
     'json2',
     'tracekit',
-    'views/searchBox'
-], function ($, _, backbone, json, tracekit, SearchBoxView) {
+    'routers/languagelearning'
+], function ($, _, backbone, json, tracekit, LanguageLearningRouter) {
     "use strict";
 
     $(document).ready(function () {
-        var $searchbox = $('div#searchbox').get(0),
-            searchBoxView = new SearchBoxView({
-                el: $searchbox
-            });
-            searchBoxView.render();
+        var router = new LanguageLearningRouter();
+
+        backbone.history.start({
+            pushState: true
+        });
     });
 });

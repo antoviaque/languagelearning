@@ -2,7 +2,7 @@
 # Imports ###########################################################
 
 from django.conf.urls import patterns, url
-from django.views.generic import RedirectView
+from django.views.generic import TemplateView
 
 from views.search import SearchAPIView
 
@@ -11,6 +11,7 @@ from views.search import SearchAPIView
 
 urlpatterns = patterns('',
     url(r'^api/v1/search$', SearchAPIView.as_view(), name=u'api_search'),
-    url(r'^$', RedirectView.as_view(url=u'/static/index.html')),
+    url(r'^expression/', TemplateView.as_view(template_name=u'index.html')),
+    url(r'^$', TemplateView.as_view(template_name=u'index.html')),
 )
 

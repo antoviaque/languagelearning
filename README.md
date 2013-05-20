@@ -70,9 +70,10 @@ Then, in the root project directory:
 
     $ npm install mocha-phantomjs mocha
 
-Finally, in the root project directory:
+Finally, in the root project directory (while the test server is running on
+port 8000):
 
-    $ node_modules/.bin/mocha-phantomjs -R dot http://localhost:8000/static/index.html --view 800x600 
+    $ make test-client
 
 ### Server tests
 
@@ -87,5 +88,3 @@ To run only the application tests (excluding Django & external packages):
 To run a specific test:
 
     $ ./manage.py test languagelearning.ASampleTestClass.test_sample_test
-
-
