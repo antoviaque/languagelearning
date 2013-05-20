@@ -109,13 +109,8 @@
             });
 
             it('should display an image', function () {
-                expect($('.expression-images .thumb').is(':visible')).to.equal(true);
+                expect($('.expression-images .thumb').length).to.equal(1);
                 expect($('.expression-images .thumb').attr('src')).to.equal('http://example.com/th?id=H.4832861395288193&pid=15.1');
-            });
-            
-            it('should resize the images', function () {
-                expect($('.expression-images .thumb').css('width')).to.equal('80px');
-                expect($('.expression-images .thumb').css('height')).to.equal('100px');
             });
 
             it('should update the url', function () {
