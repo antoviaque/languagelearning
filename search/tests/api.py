@@ -248,7 +248,7 @@ class SearchAPITest(APITest):
         self.assertEqual(mock_bing.mock_calls, [
                 call.search('image', '+bom +dia +e\xc3\xa8\xc3\x89\xc9\x98', {
                         '$format': 'json',
-                        '$top': 10,
+                        '$top': 6,
                         '$skip': 0 
                     })
             ])
