@@ -3,8 +3,9 @@
 
 define([
     'underscore',
+    'jquery',
     'models/base'
-], function (_, BaseModel) {
+], function (_, $, BaseModel) {
     "use strict";
 
     return BaseModel.extend({
@@ -13,8 +14,6 @@ define([
         },
 
         parse: function (obj) {
-            // Set anything you want in the model that's not returned by the
-            // server here.
 
             return obj;
         },

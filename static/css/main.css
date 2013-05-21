@@ -86,3 +86,20 @@ header #searchbox {
     cursor: pointer;
 }
 
+/* Results *****************************/
+
+.expression-images {
+    height: 100px;
+    width: 100%;
+}
+
+.expression-images .thumb {
+    float: left;
+    max-height: 100%;
+    width: auto;
+}
+@media \0screen { 
+  .expression-images .thumb {
+  	height: auto; /* for ie 8 */
+  }
+}

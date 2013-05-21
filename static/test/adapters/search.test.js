@@ -48,6 +48,9 @@ define([
                 var results = expression.get('results');
                 expect(results.translation).to.equal('good day');
                 done();
+
+                // TODO: Check for images results after merging pending changes
+                // to this test
             });
 
             server.respond();

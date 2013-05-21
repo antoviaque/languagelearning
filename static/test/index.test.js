@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals describe, it, $, before, beforeEach, after, afterEach, expect, sinon*/
+/*globals describe, it, $, before, beforeEach, after, afterEach, expect, sinon, xit*/
 
 (function () {
     "use strict";
@@ -61,6 +61,7 @@
         describe("after submitting an expression for translation", function () {
 
             var expression = 'bom dia',
+                exampleImageUrl = '/static/test/fixtures/example.jpeg',
                 server;
 
             before(function () {
@@ -73,7 +74,14 @@
                                        JSON.stringify({
                                            "expression": "bom dia",
                                            "results": {
-                                               "translation": "good day"
+                                               "translation": "good day",
+                                               "images": [{
+                                                   "meta": {
+                                                     "engine": "bing images"
+                                                   }, 
+                                                   "size": ["100", "144"], 
+                                                   "url": exampleImageUrl
+                                               }]
                                            },
                                            "source": "pt",
                                            "status": "success",
@@ -99,6 +107,15 @@
             it('should display a translation', function () {
                 expect($('#expression').is(':visible')).to.equal(true);
                 expect($('#translation').text()).to.equal('good day');
+            });
+
+            it('should display an image', function () {
+                expect($('.expression-images .thumb').length).to.equal(1);
+                expect($('.expression-images .thumb').attr('src')).to.equal(exampleImageUrl);
+            });
+
+            it('should display all images resized to 100px height', function () {
+                expect($('.expression-images .thumb').height()).to.equal(100);
             });
 
             it('should update the url', function () {
