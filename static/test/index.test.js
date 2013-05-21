@@ -1,5 +1,5 @@
 /*jslint browser:true*/
-/*globals describe, it, $, before, beforeEach, after, afterEach, expect, sinon*/
+/*globals describe, it, $, before, beforeEach, after, afterEach, expect, sinon, xit*/
 
 (function () {
     "use strict";
@@ -61,6 +61,7 @@
         describe("after submitting an expression for translation", function () {
 
             var expression = 'bom dia',
+                exampleImageUrl = '/static/test/fixtures/example.jpeg',
                 server;
 
             before(function () {
@@ -78,8 +79,8 @@
                                                    "meta": {
                                                      "engine": "bing images"
                                                    }, 
-                                                   "size": ["240", "300"], 
-                                                   "url": "http://example.com/th?id=H.4832861395288193&pid=15.1"
+                                                   "size": ["100", "144"], 
+                                                   "url": exampleImageUrl
                                                }]
                                            },
                                            "source": "pt",
@@ -110,7 +111,11 @@
 
             it('should display an image', function () {
                 expect($('.expression-images .thumb').length).to.equal(1);
-                expect($('.expression-images .thumb').attr('src')).to.equal('http://example.com/th?id=H.4832861395288193&pid=15.1');
+                expect($('.expression-images .thumb').attr('src')).to.equal(exampleImageUrl);
+            });
+
+            it('should display all images resized to 100px height', function () {
+                expect($('.expression-images .thumb').height()).to.equal(100);
             });
 
             it('should update the url', function () {
