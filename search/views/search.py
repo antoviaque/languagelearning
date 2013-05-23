@@ -37,10 +37,9 @@ class SearchAPIView(APIView):
         results = {}
         # TODO better way to ensure 'translation' is run first, system of
         # dependencies for the different queries.
-        for query_type in sorted(self.query_types, reverse=True):
-            if query_type not in (u'translation', u'images', u'definitions'):
-                continue
-            results[query_type] = getattr(self, u'query_{0}'.format(query_type))()
+        for query_type in (u'translation', u'images', u'definitions'):
+            if query_type in self.query_types:
+                results[query_type] = getattr(self, u'query_{0}'.format(query_type))() 
 
         return self.render_to_response({
                 u'expression': self.expression,
