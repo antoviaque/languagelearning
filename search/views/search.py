@@ -2,6 +2,7 @@
 # Imports ###########################################################
 
 import json
+import os
 
 from django.conf import settings
 
@@ -107,7 +108,8 @@ class SearchAPIView(APIView):
                 return None # No source language, can't look up definition.
 
         try:
-            instruction = json.load(open(u'instructions/{0}.json'.format(self.source)))
+            instruction = json.load(open(os.path.join(settings.INSTRUCTIONS_DIR,
+                                                      u'{0}.json'.format(self.source))))
         except IOError:
             # Language not supported, can't look up definition.
             return None
