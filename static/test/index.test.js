@@ -106,44 +106,67 @@
 
                 $('input.search-text').val(expression);
                 $('form.search-form').trigger('submit');
-
-                server.respond();
             });
 
-            after(function () {
-                server.restore();
-            });
-
-            it('should display the original expression', function () {
-                expect($('.search-text').is(':visible')).to.equal(true);
-                expect($('.search-text').val()).to.equal(expression);
-            });
-
-            it('should display a translation', function () {
-                expect($('#expression').is(':visible')).to.equal(true);
-                expect($('#translation').text()).to.equal('good day');
-            });
-
-            it('should display an image', function () {
-                expect($('.expression-images .thumb').length).to.equal(1);
-                expect($('.expression-images .thumb').attr('src')).to.equal(exampleImageUrl);
-            });
-
-            it('should display all images resized to 100px height', function () {
-                expect($('.expression-images .thumb').height()).to.equal(100);
+            it('should display a loading indicator', function (done) {
+                var $loading = $('#searchbox .base-loading');
+                expect($loading.length).to.equal(1);
+                $loading.queue(function (next) {
+                    expect($loading.is(':visible')).to.be(true);
+                    next();
+                    done();
+                });
             });
 
             it('should update the url', function () {
                 expect(window.location.pathname).to.equal('/expression/' + expression);
             });
 
-            it('should display all translations', function () {
-                var $definitions = $('.expression-definition');
-                expect($definitions).to.have.length(2);
-                expect($('h2', $definitions.get(0)).text()).to.equal('bom');
-                expect($('ol li', $definitions.get(0))).to.have.length(2);
-                expect($('h2', $definitions.get(1)).text()).to.equal('dia');
-                expect($('ol li', $definitions.get(1))).to.have.length(4);
+            describe('after the server has responded', function () {
+
+                beforeEach(function () {
+                    server.respond();
+                });
+
+                it('should no longer display a loading indicator', function (done) {
+                    $('#searchbox .base-loading').queue(function (next) {
+                        expect($('#searchbox .base-loading').is(':visible')).to.be(false);
+                        next();
+                        done();
+                    });
+                });
+
+                it('should display the original expression', function () {
+                    expect($('.search-text').is(':visible')).to.equal(true);
+                    expect($('.search-text').val()).to.equal(expression);
+                });
+
+                it('should display a translation', function () {
+                    expect($('#expression').is(':visible')).to.equal(true);
+                    expect($('#translation').text()).to.equal('good day');
+                });
+
+                it('should display an image', function () {
+                    expect($('.expression-images .thumb').length).to.equal(1);
+                    expect($('.expression-images .thumb').attr('src')).to.equal(exampleImageUrl);
+                });
+
+                it('should display all images resized to 100px height', function () {
+                    expect($('.expression-images .thumb').height()).to.equal(100);
+                });
+
+                it('should display all translations', function () {
+                    var $definitions = $('.expression-definition');
+                    expect($definitions).to.have.length(2);
+                    expect($('h2', $definitions.get(0)).text()).to.equal('bom');
+                    expect($('ol li', $definitions.get(0))).to.have.length(2);
+                    expect($('h2', $definitions.get(1)).text()).to.equal('dia');
+                    expect($('ol li', $definitions.get(1))).to.have.length(4);
+                });
+            });
+
+            after(function () {
+                server.restore();
             });
         });
     });
