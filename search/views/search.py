@@ -105,20 +105,32 @@ class SearchAPIView(APIView):
             # run in the correct order and avoid duplication.
             self.query_translation()
             if not self.source:
-                raise ErrorResponse(u'Cannot identify source language, and thus cannot look up definitions.')
+                return None # No source language, can't look up definition.
 
         try:
             instruction = json.load(open(u'instructions/{0}.json'.format(self.source)))
-        except IOError as e:
-            # Language not supported
-            raise ErrorResponse(u'Langauge {0} not supported: {1}'.format(self.source, e))
+        except IOError:
+            # Language not supported, can't look up definition.
+            return None
         else:
-            resp = scraper.scrape(instruction, force=True, tags={u'word': self.expression.encode('utf8')})
-            vals = resp.flattened_values
-            if vals:
-                if isinstance(vals[u'definition'], list):
-                    return [r[u'definition'].decode('unicode-escape') for r in resp.flattened_values[u'definition']]
-                return [vals[u'definition'].decode('unicode-escape')]
+            definitions = []
+            for word in self.expression.split():
+                resp = scraper.scrape(instruction,
+                                      force=True,
+                                      tags={u'word': word.encode('utf8')})
+                if resp.flattened_values:
+                    val = resp.flattened_values[u'definition']
+                    if isinstance(val, list):
+                        sentences = [v[u'definition'].decode('unicode-escape') for v in val]
+                    else:
+                        sentences = [val.decode('unicode-escape')]
+
+                    definitions.append({
+                        "word": word,
+                        "sentences": sentences
+                    })
+
+            return definitions
 
         # No definitions found
-        raise ErrorResponse(u'Could not find definition')
+        return None

@@ -300,9 +300,14 @@ class SearchAPITest(APITest):
         self.api_check(response, 200, {
                 u'expression': u'bezeichnen',
                 u'results': {
-                    u'definitions': [u'[1] jemandem oder etwas einen Namen geben, jemanden benennen',
-                                     u'[2] in bestimmter Weise kennzeichnen; durch ein Symbol erkennbar machen',
-                                     u'[3] eine Sache ausmachen, f\\u00fcr etwas typisch sein']
+                    u'definitions': [{
+                        u'word': u'bezeichnen',
+                        u'sentences': [
+                            u'[1] jemandem oder etwas einen Namen geben, jemanden benennen',
+                            u'[2] in bestimmter Weise kennzeichnen; durch ein Symbol erkennbar machen',
+                            u'[3] eine Sache ausmachen, f\\u00fcr etwas typisch sein'
+                        ]
+                    }]
                 },
                 u'source': u'de',
                 u'status': u'success',

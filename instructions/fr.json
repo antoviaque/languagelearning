@@ -8,9 +8,9 @@
         "replace": "$1",
         "match": 0,
         "then": {
-            "description": "Pull out each definition.",
+            "description": "Pull out each definition, excepting examples.",
             "name": "definition",
-            "find": "<li>(.+?)</li>",
+            "find": "<li>(\\w.*?)(</li>|<ul>)",
             "replace": "$1"
         }
     }

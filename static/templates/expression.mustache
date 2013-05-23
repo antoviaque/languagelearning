@@ -3,14 +3,19 @@
 
 <div class="expression-images">
   {{#images}}
-  <img class="thumb" src="{{{url}}}" /> 
+  <img class="thumb" src="{{{url}}}" />
   {{/images}}
 </div>
 
-<h2>Definition</h2>
-
 {{#definitions}}
-<p>{{{.}}}</p>
+<div class="expression-definition">
+  <h2>{{word}}</h2>
+  <ol>
+    {{#sentences}}
+    <li>{{{.}}}</li>
+    {{/sentences}}
+  </ol>
+</div>
 {{/definitions}}
 {{/results}}
 
