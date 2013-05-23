@@ -7,6 +7,7 @@ from django.conf import settings
 
 from dist.bingsearch import BingSearchAPI
 from dist.googletranslate import GoogleTranslator
+from pycaustic import Scraper
 from utils.api import APIView, ErrorResponse
 
 
@@ -34,8 +35,10 @@ class SearchAPIView(APIView):
             raise ErrorResponse(u'No query type specified')
         
         results = {}
-        for query_type in self.query_types:
-            if query_type not in (u'translation', u'images'):
+        # TODO better way to ensure 'translation' is run first, system of
+        # dependencies for the different queries.
+        for query_type in sorted(self.query_types, reverse=True):
+            if query_type not in (u'translation', u'images', u'definitions'):
                 continue
             results[query_type] = getattr(self, u'query_{0}'.format(query_type))()
 
@@ -94,3 +97,40 @@ class SearchAPIView(APIView):
 
         return images
 
+    def query_definitions(self):
+        scraper = Scraper()
+        if not self.source:
+            # TODO not a huge fan of the self.source side-effect from this,
+            # this requires the sorted() hack above to ensure that queries are
+            # run in the correct order and avoid duplication.
+            self.query_translation()
+            if not self.source:
+                return None # No source language, can't look up definition.
+
+        try:
+            instruction = json.load(open(u'instructions/{0}.json'.format(self.source)))
+        except IOError:
+            # Language not supported, can't look up definition.
+            return None
+        else:
+            definitions = []
+            for word in self.expression.split():
+                resp = scraper.scrape(instruction,
+                                      force=True,
+                                      tags={u'word': word.encode('utf8')})
+                if resp.flattened_values:
+                    val = resp.flattened_values[u'definition']
+                    if isinstance(val, list):
+                        sentences = [v[u'definition'].decode('unicode-escape') for v in val]
+                    else:
+                        sentences = [val.decode('unicode-escape')]
+
+                    definitions.append({
+                        "word": word,
+                        "sentences": sentences
+                    })
+
+            return definitions
+
+        # No definitions found
+        return None

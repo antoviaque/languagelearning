@@ -78,9 +78,24 @@
                                                "images": [{
                                                    "meta": {
                                                      "engine": "bing images"
-                                                   }, 
-                                                   "size": ["100", "144"], 
+                                                   },
+                                                   "size": ["100", "144"],
                                                    "url": exampleImageUrl
+                                               }],
+                                               "definitions": [{
+                                                   "word": "bom",
+                                                   "sentences": [
+                                                       "que corresponde plenamente ao que \xc3\xa9 exigido, desejado ou esperado quanto \xc3\xa0 sua natureza, adequa\xc3\xa7\xc3\xa3o, fun\xc3\xa7\xc3\xa3o, efic\xc3\xa1cia, funcionamento etc. (falando de ser ou coisa)",
+                                                       "moralmente correto em suas atitudes, de acordo com quem julga"
+                                                   ]
+                                               }, {
+                                                   "word": "dia",
+                                                   "sentences": [
+                                                       'espa\xc3\xa7o de tempo correspondente \xc3\xa0 rota\xc3\xa7\xc3\xa3o da Terra, que equivale a 23 horas, 56 minutos e 4 segundos',
+                                                       'espa\xc3\xa7o de 24 horas',
+                                                       'parte do dia (da defini\xc3\xa7\xc3\xa3o 1) entre o amanhecer e o p\xc3\xb4r-do-sol',
+                                                       '(F\xc3\xadsica) unidade de medida de tempo equivalente a 86400 segundos e que \xc3\xa9 simbolizada por d'
+                                                   ]
                                                }]
                                            },
                                            "source": "pt",
@@ -120,6 +135,15 @@
 
             it('should update the url', function () {
                 expect(window.location.pathname).to.equal('/expression/' + expression);
+            });
+
+            it('should display all translations', function () {
+                var $definitions = $('.expression-definition');
+                expect($definitions).to.have.length(2);
+                expect($('h2', $definitions.get(0)).text()).to.equal('bom');
+                expect($('ol li', $definitions.get(0))).to.have.length(2);
+                expect($('h2', $definitions.get(1)).text()).to.equal('dia');
+                expect($('ol li', $definitions.get(1))).to.have.length(4);
             });
         });
     });

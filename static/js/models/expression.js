@@ -14,7 +14,6 @@ define([
         },
 
         parse: function (obj) {
-
             return obj;
         },
 

@@ -1,0 +1,17 @@
+{
+    "description": "Obtains definitions from German Wiktionary.",
+    "load": "http://de.wiktionary.org/w/api.php?action=query&prop=extracts&titles={{word}}&format=json",
+    "then": {
+        "description": "Isolate area with definitions.",
+        "find": "bedeutung.+?<dl>(.+?)</dl>",
+        "case_insensitive": true,
+        "replace": "$1",
+        "match": 0,
+        "then": {
+            "description": "Pull out each definition.",
+            "name": "definition",
+            "find": "<dd>(\\[\\d+\\]\\s+)?(.+?)</dd>",
+            "replace": "$2"
+        }
+    }
+}
