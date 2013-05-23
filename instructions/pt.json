@@ -1,0 +1,18 @@
+{
+    "description": "Obtains definitions from Portuguese Wiktionary.",
+    "load": "http://pt.wiktionary.org/w/api.php?action=query&prop=extracts&titles={{word}}&format=json",
+    "then": {
+        "description": "Isolate area with definitions.",
+        "find": "<ol>(.+?)</ol>",
+        "case_insensitive": true,
+        "replace": "$1",
+        "match": 0,
+        "then": {
+            "description": "Pull out each definition.",
+            "name": "definition",
+            "find": "<li>(.+?)</li>",
+            "replace": "$1"
+        }
+    }
+}
+

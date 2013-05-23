@@ -252,5 +252,64 @@ class SearchAPITest(APITest):
                         '$skip': 0 
                     })
             ])
-        
-        
+
+    def set_mock_definitions_scrape(self, MockPycausticScraper, definitions):
+        def mock_response(*args, **kwargs):
+            resp = Mock()
+            resp.flattened_values = definitions
+            return resp
+
+        mock_scraper = Mock()
+        def create_mock_scraper(*args, **kwargs):
+            return mock_scraper
+
+        mock_scraper.scrape.side_effect = mock_response
+        MockPycausticScraper.side_effect = create_mock_scraper
+
+        return mock_scraper
+
+    @patch('search.views.search.GoogleTranslator')
+    @patch('search.views.search.Scraper')
+    def test_api_search_definitions(self, MockPycausticScraper, MockGoogleTranslator):
+
+        # Mock definitions
+        mock_definitions = {
+            'definition': [{
+                'definition': '[1] jemandem oder etwas einen Namen geben, jemanden benennen'
+            }, {
+                'definition': '[2] in bestimmter Weise kennzeichnen; durch ein Symbol erkennbar machen'
+            }, {
+                'definition': '[3] eine Sache ausmachen, f\\\\u00fcr etwas typisch sein'
+            }]
+        }
+        mock_scraper = self.set_mock_definitions_scrape(MockPycausticScraper, mock_definitions)
+
+        # Predetermine translation results
+        def mock_translate(*args, **kwargs):
+            return {
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'call',
+                            u'detectedSourceLanguage': u'de'
+                        }]
+                    }
+                }
+
+        self.set_mock_translate(MockGoogleTranslator, mock_translate)
+        response = self.client.get(u'/api/v1/search?expression=bezeichnen&query_type=definitions')
+        self.api_check(response, 200, {
+                u'expression': u'bezeichnen',
+                u'results': {
+                    u'definitions': [u'[1] jemandem oder etwas einen Namen geben, jemanden benennen',
+                                     u'[2] in bestimmter Weise kennzeichnen; durch ein Symbol erkennbar machen',
+                                     u'[3] eine Sache ausmachen, f\\u00fcr etwas typisch sein']
+                },
+                u'source': u'de',
+                u'status': u'success',
+                u'target': u'en'
+            })
+        self.assertEqual(mock_scraper.mock_calls, [
+            call.scrape(json.load(open('instructions/de.json')),
+                        force=True,
+                        tags={u'word':'bezeichnen'})
+        ])

@@ -6,7 +6,8 @@ define([
    'adapters/search',
    'models/expression',
    'expect',
-   'mocha'
+   'mocha',
+   'sinon'
 ], function (_, $, searchAdapter, ExpressionModel, expect) {
 
     describe("Search API", function () {

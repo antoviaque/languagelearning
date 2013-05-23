@@ -7,6 +7,7 @@ from django.conf import settings
 
 from dist.bingsearch import BingSearchAPI
 from dist.googletranslate import GoogleTranslator
+from pycaustic import Scraper
 from utils.api import APIView, ErrorResponse
 
 
@@ -34,8 +35,10 @@ class SearchAPIView(APIView):
             raise ErrorResponse(u'No query type specified')
         
         results = {}
-        for query_type in self.query_types:
-            if query_type not in (u'translation', u'images'):
+        # TODO better way to ensure 'translation' is run first, system of
+        # dependencies for the different queries.
+        for query_type in sorted(self.query_types, reverse=True):
+            if query_type not in (u'translation', u'images', u'definitions'):
                 continue
             results[query_type] = getattr(self, u'query_{0}'.format(query_type))()
 
@@ -94,3 +97,28 @@ class SearchAPIView(APIView):
 
         return images
 
+    def query_definitions(self):
+        scraper = Scraper()
+        if not self.source:
+            # TODO not a huge fan of the self.source side-effect from this,
+            # this requires the sorted() hack above to ensure that queries are
+            # run in the correct order and avoid duplication.
+            self.query_translation()
+            if not self.source:
+                raise ErrorResponse(u'Cannot identify source language, and thus cannot look up definitions.')
+
+        try:
+            instruction = json.load(open(u'instructions/{0}.json'.format(self.source)))
+        except IOError as e:
+            # Language not supported
+            raise ErrorResponse(u'Langauge {0} not supported: {1}'.format(self.source, e))
+        else:
+            resp = scraper.scrape(instruction, force=True, tags={u'word': self.expression.encode('utf8')})
+            vals = resp.flattened_values
+            if vals:
+                if isinstance(vals[u'definition'], list):
+                    return [r[u'definition'].decode('unicode-escape') for r in resp.flattened_values[u'definition']]
+                return [vals[u'definition'].decode('unicode-escape')]
+
+        # No definitions found
+        raise ErrorResponse(u'Could not find definition')

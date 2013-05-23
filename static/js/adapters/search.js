@@ -28,8 +28,8 @@ define([
                     //target: '', // TODO
                     query_type: [
                         'translation',
-                        'images'
-                        //'definitions' // TODO
+                        'images',
+                        'definitions'
                     ]
                 }, true)
         }).success(function (content, status, jqXHR) {
