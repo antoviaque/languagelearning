@@ -22,18 +22,19 @@ define([
             var $el = this.$el,
                 $dfd = new $.Deferred(),
                 $loadingDiv = this.$loadingDiv,
-                $container = this.$container,
-                $origParent = this.$el.parent();
+                $container = this.$container;
 
-            if (!$container.is(':visible')) {
+            if ($container.parent().length === 0) {
                 $el.replaceWith($container);
                 $container.append($loadingDiv).append($el);
                 $loadingDiv.hide().fadeIn();
             }
             $dfd.always(function () {
-                $loadingDiv.fadeOut(function () {
-                    $el.detach();
-                    $container.replaceWith($el);
+                $loadingDiv.fadeOut({
+                    complete: function () {
+                        $container.replaceWith($el);
+                        $container.detach();
+                    }
                 });
             });
             return $dfd;

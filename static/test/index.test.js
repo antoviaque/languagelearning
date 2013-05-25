@@ -14,7 +14,7 @@
                 $(document).ready(function() {
                     done();
                 });
-            }, 10);
+            }, 1);
         });
 
         it("has a search box", function () {
@@ -109,13 +109,13 @@
             });
 
             it('should display a loading indicator', function (done) {
-                var $loading = $('#searchbox .base-loading');
+                var $loading = $('.base-loading');
                 expect($loading.length).to.equal(1);
-                $loading.queue(function (next) {
+                setTimeout(function () {
                     expect($loading.is(':visible')).to.be(true);
-                    next();
+                    expect(Number($loading.css('opacity'))).not.to.equal(0);
                     done();
-                });
+                }, 400);
             });
 
             it('should update the url', function () {
@@ -129,11 +129,11 @@
                 });
 
                 it('should no longer display a loading indicator', function (done) {
-                    $('#searchbox .base-loading').queue(function (next) {
-                        expect($('#searchbox .base-loading').is(':visible')).to.be(false);
-                        next();
+                    var $loading = $('.base-loading');
+                    setTimeout(function () {
+                        expect($loading.is(':visible')).to.be(false);
                         done();
-                    });
+                    }, 800);
                 });
 
                 it('should display the original expression', function () {
