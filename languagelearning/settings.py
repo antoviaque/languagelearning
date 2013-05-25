@@ -156,6 +156,9 @@ LOGGING = {
     }
 }
 
+# Path to scraper instructions.
+INSTRUCTIONS_DIR = spath('instructions')
+
 # Use local settings, if any.
 try:
     from local_settings import *
