@@ -13,18 +13,28 @@ define([
          * rejected, will cause the loading indicator to be hidden.
          */
         loading: function () {
+            if (!this.$container) {
+                this.$container = $('<div class="loading-container" />');
+            }
             if (!this.$loadingDiv) {
                 this.$loadingDiv = $('<div class="base-loading"><div class="base-loading-spinner" /></div>');
             }
             var $el = this.$el,
                 $dfd = new $.Deferred(),
-                $loadingDiv = this.$loadingDiv;
+                $loadingDiv = this.$loadingDiv,
+                $container = this.$container,
+                $origParent = this.$el.parent();
 
-            if (!this.$loadingDiv.is(':visible')) {
-                $loadingDiv.hide().appendTo($el).fadeIn();
+            if (!$container.is(':visible')) {
+                $el.replaceWith($container);
+                $container.append($loadingDiv).append($el);
+                $loadingDiv.hide().fadeIn();
             }
             $dfd.always(function () {
-                $loadingDiv.fadeOut($loadingDiv.detach);
+                $loadingDiv.fadeOut(function () {
+                    $el.detach();
+                    $container.replaceWith($el);
+                });
             });
             return $dfd;
         }

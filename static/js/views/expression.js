@@ -22,7 +22,8 @@ define([
         },
 
         render: function () {
-            this.$el.html(mustache.render(expressionTemplate, this.model.toJSON()));
+            this.$el.html(mustache.render(expressionTemplate,
+                                          this.model ? this.model.toJSON() : {}));
             return this;
         }
     });
