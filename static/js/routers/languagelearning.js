@@ -32,17 +32,22 @@ define([
         },
 
         expression: function (expression) {
-            var self = this;
+            var self = this,
+                loadingDfd;
 
             this.navigate('expression/' + expression);
 
             $horizon.hide();
             this._searchBoxView.expression = expression;
             this._searchBoxView.render().$el.detach().appendTo($header.show());
+            this._expressionView.render().$el.appendTo($mainDiv.show());
+            loadingDfd = this._expressionView.loading();
 
             searchAdapter.search(expression).done(function (expressionModel) {
                 self._expressionView.model = expressionModel;
-                self._expressionView.render().$el.appendTo($mainDiv.show());
+                self._expressionView.render();
+            }).always(function () {
+                loadingDfd.resolve();
             });
         }
     });

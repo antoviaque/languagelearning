@@ -13,6 +13,30 @@
 	display: block
 }
 
+.loading-container {
+	position: relative;
+}
+
+.base-loading {
+	text-align: center;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: block;
+	z-index: 1000;
+	background-image: url('../img/translucent.png');
+	background-repeat: repeat-x repeat-y;
+}
+
+.base-loading .base-loading-spinner {
+	margin: 0 auto;
+	width: 64px;
+	height: 64px;
+	background-image: url('../img/spinner.gif');
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
 /* Home ********************************/
 
 .home-logo {
