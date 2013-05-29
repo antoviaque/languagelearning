@@ -1,3 +1,6 @@
+/*jslint browser: true, nomen: true */
+/*global define */
+
 define([
     'jquery',
     'backbone',
@@ -31,9 +34,11 @@ define([
             }
             $dfd.always(function () {
                 $loadingDiv.fadeOut({
-                    complete: function () {
-                        $container.replaceWith($el);
-                        $container.detach();
+                    always: function () {
+                        if ($container.parent().length > 0) {
+                            $container.replaceWith($el);
+                            $container.detach();
+                        }
                     }
                 });
             });
