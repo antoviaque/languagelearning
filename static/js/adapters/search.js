@@ -7,6 +7,7 @@ define([
 ], function ($, _, ExpressionModel) {
 
     function SearchAdapter(expression) {
+        this._inProgress = 0;
     }
 
     /**
@@ -15,7 +16,11 @@ define([
      * @returns {jQuery.Promise}
      */
     SearchAdapter.prototype.search = function (expression) {
-        var $dfd = new $.Deferred();
+        var $dfd = new $.Deferred(),
+            self = this;
+
+        this._inProgress += 1;
+        $('body').css('cursor', 'progress');
 
         $.ajax({
             method: 'get',
@@ -36,6 +41,11 @@ define([
             $dfd.resolve(new ExpressionModel(content));
         }).error(function (jqXHR) {
             $dfd.reject();
+        }).always(function () {
+            self._inProgress -= 1;
+            if (self._inProgress === 0) {
+                $('body').css('cursor', 'auto');
+            }
         });
         return $dfd.promise();
     };
