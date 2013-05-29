@@ -18,10 +18,6 @@ define([
 
         'id': 'expression',
 
-        events: {
-            'render': 'render'
-        },
-
         initialize: function (options) {
         },
 
