@@ -44,8 +44,9 @@ define([
             loadingDfd = this._expressionView.loading();
 
             searchAdapter.search(expression).done(function (expressionModel) {
-                self._expressionView.model = expressionModel;
-                self._expressionView.render();
+                self._expressionView.render(expressionModel);
+            }).fail(function (expressionModel) {
+                self._expressionView.render(expressionModel);
             }).always(function () {
                 loadingDfd.resolve();
             });

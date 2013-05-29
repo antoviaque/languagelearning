@@ -1,10 +1,14 @@
-/*globals DEBUG_MODE*/
+/*jslint browser: true, nomen: true */
+/*globals define, DEBUG_MODE*/
 
 define([
     'jquery',
     'underscore',
+    'json2',
     'models/expression'
-], function ($, _, ExpressionModel) {
+], function ($, _, json, ExpressionModel) {
+
+    "use strict";
 
     function SearchAdapter(expression) {
     }
@@ -35,7 +39,13 @@ define([
         }).success(function (content, status, jqXHR) {
             $dfd.resolve(new ExpressionModel(content));
         }).error(function (jqXHR) {
-            $dfd.reject();
+            try {
+                $dfd.reject(new ExpressionModel(json.parse(jqXHR.responseText)));
+            } catch (err) {
+                $dfd.reject(new ExpressionModel({
+                    "error": "please try again later" // TODO LOCAL
+                }));
+            }
         });
         return $dfd.promise();
     };

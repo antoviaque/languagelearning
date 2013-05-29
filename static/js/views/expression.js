@@ -18,12 +18,16 @@ define([
 
         'id': 'expression',
 
+        events: {
+            'render': 'render'
+        },
+
         initialize: function (options) {
         },
 
-        render: function () {
-            this.$el.html(mustache.render(expressionTemplate,
-                                          this.model ? this.model.toJSON() : {}));
+        render: function (model) {
+            var jsonModel = model ? model.toJSON() : {};
+            this.$el.html(mustache.render(expressionTemplate, jsonModel));
             return this;
         }
     });
