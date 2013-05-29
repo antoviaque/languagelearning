@@ -4,7 +4,18 @@
 (function () {
     "use strict";
 
-    describe("The index page", function () {
+    describe("The pre-JS page", function () {
+        it("has a loading spinner", function () {
+            expect($('.js-loading-spinner')).to.have.length(1);
+            expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(1);
+        });
+
+        it("has made page-wide loading spinner", function () {
+            expect($('body').css('cursor')).to.equal('progress');
+        });
+    });
+
+    describe("The loaded index page", function () {
 
         /**
          * Set a document.ready callback after any others would have been set.
@@ -14,7 +25,16 @@
                 $(document).ready(function() {
                     done();
                 });
-            }, 1);
+            }, 200);
+        });
+
+        it("has no loading spinner", function () {
+            expect($('.js-loading-spinner')).to.have.length(0);
+            expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(0);
+        });
+
+        it("has reset the cursor to auto", function () {
+            expect($('body').css('cursor')).to.equal('auto');
         });
 
         it("has a search box", function () {

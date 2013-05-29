@@ -24,6 +24,11 @@ define([
         initialize: function (options) {
             this._searchBoxView = new SearchBoxView({router: this});
             this._expressionView = new ExpressionView({router: this});
+            var $loadingSpinner = $('.js-loading-spinner');
+            $loadingSpinner.fadeOut(100, function () {
+                $loadingSpinner.remove();
+            });
+            $('body').css('cursor', 'auto');
         },
 
         home: function () {
