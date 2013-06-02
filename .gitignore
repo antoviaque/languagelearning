@@ -5,3 +5,4 @@ languagelearning/local_settings.py
 log/
 *#
 node_modules
+static/build/*

@@ -1,11 +1,8 @@
-/*jslint browser: true, nomen: true*/
-/*globals requirejs, DEBUG_MODE:true*/
-
-DEBUG_MODE = true;
-
-// TODO this is duplicative with the settings at languagelearning.build.js,
+// TODO this is duplicative with the settings at languagelearning.main.js,
 // needs to be DRY'd out.
-requirejs.config({
+({
+    appDir: '../',
+    baseUrl: 'js',
 
     paths: {
         'models': 'models',
@@ -48,23 +45,4 @@ requirejs.config({
             name: "languagelearning.main"
         }
     ]
-});
-
-requirejs([
-    'jquery',
-    'underscore',
-    'backbone',
-    'json2',
-    'tracekit',
-    'routers/languagelearning'
-], function ($, _, backbone, json, tracekit, LanguageLearningRouter) {
-    "use strict";
-
-    $(document).ready(function () {
-        var router = new LanguageLearningRouter();
-
-        backbone.history.start({
-            pushState: true
-        });
-    });
-});
+})
