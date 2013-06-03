@@ -57,10 +57,10 @@ To compile static assets, run
 
     $ make build
 
-This will compile, uglify, and compress (using gzip) all assets into
-`static/build`.  You will then need to set up a proxy to serve all assets at
-`static` from `static/build`, ensuring that `Content-Encoding: gzip` is set as
-a header for any assets ending with `.html`, `.js`, or `.css`.
+This will compile and uglify all assets into `static/build`.  You will then 
+need to set up a proxy to serve all assets at `static` from `static/build`.
+The proxy is responsible for gziping all content if you want to have it
+compressed.
 
 Running the tests
 -----------------

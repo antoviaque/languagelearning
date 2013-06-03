@@ -34,11 +34,3 @@ build:
 	#   catching errors here.
 	${UGLIFYJS} -c -m -o static/build/js/vendor/require.js \
 	    static/build/js/vendor/require.js
-	#
-	# Gzip all non-binary assets, rename to their original title:
-	#
-	#   Make sure to set your static server to serve everything in
-	#   'static/build' with the suffixes "js", "css", or "html" with
-	#   "Content-Encoding: gzip".
-	find static/build \( -regex .*js -or -regex .*css -or -regex .*html \) \
-	    -exec gzip --best {} \; -exec mv {}.gz {} \;
