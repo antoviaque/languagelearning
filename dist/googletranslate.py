@@ -224,7 +224,7 @@ class GoogleTranslator(object):
         # going to have json, decode it first
         return self._decode_json(content)
 
-    def translate(self, query, target="en", source="", _dirty=False):
+    def translate(self, query, target="en", source=""):
         """
         Translate a query.
 
@@ -237,10 +237,6 @@ class GoogleTranslator(object):
         source : str, optional
             Language of the source text, if known. Will be auto-detected
             if an empty string is passed.
-        dirty : bool
-            This is not intended to be used by users. It is here to avoid
-            infinite recursion if the query returns an error because the
-            language can't be detected.
 
         Returns
         -------
@@ -270,13 +266,6 @@ class GoogleTranslator(object):
         url = self._build_uri("", params)
         content = self._fetch_data(url)
         results = self._decode_json(content)
-
-        if "errors" in results and not _dirty:
-            if results['message'] == 'Bad language pair: {0}':
-                # try to detect language and resubmit query
-                source = self.detect(query)
-                source = source[0]['language']
-                return self.translate(query, target, source, True)
 
         return results
 
