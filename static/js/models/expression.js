@@ -14,6 +14,15 @@ define([
         },
 
         parse: function (obj) {
+            if (obj.source === 'no') {
+                obj.status = 'error';
+                obj.error = 'I couldn\'t identify the language of "' + obj.expression + '".  Maybe try checking for typos?'; // TODO LOCAL
+                delete obj.results;
+            } else if (obj.source === obj.target) {
+                obj.status = 'error';
+                obj.error = 'Source and target language are the same, please choose another language to translate into.'; // TODO LOCAL
+                delete obj.results;
+            }
             return obj;
         },
 

@@ -116,6 +116,10 @@ class SearchAPIView(APIView):
         else:
             definitions = []
             for word in self.expression.split():
+                definition = {
+                    "word": word
+                }
+
                 resp = scraper.scrape(instruction,
                                       force=True,
                                       tags={u'word': word.encode('utf8')})
@@ -126,10 +130,9 @@ class SearchAPIView(APIView):
                     else:
                         sentences = [val.decode('unicode-escape')]
 
-                    definitions.append({
-                        "word": word,
-                        "sentences": sentences
-                    })
+                    definition['sentences'] = sentences
+
+                definitions.append(definition)
 
             return definitions
 
