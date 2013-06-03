@@ -222,13 +222,12 @@
                     it('should display all translations', function () {
                         var $definitions = $('.expression-definition');
                         expect($definitions).to.have.length(2);
-                        expect($('h2', $definitions.get(0)).text()).to.equal('bom');
+                        expect($('h2', $definitions.get(0)).text()).to.contain('bom');
                         expect($('ol li', $definitions.get(0))).to.have.length(2);
-                        expect($('h2', $definitions.get(1)).text()).to.equal('dia');
+                        expect($('h2', $definitions.get(1)).text()).to.contain('dia');
                         expect($('ol li', $definitions.get(1))).to.have.length(4);
                     });
                 });
-
             });
 
             afterEach(function () {
