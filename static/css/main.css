@@ -115,6 +115,7 @@ header #searchbox {
 .expression-images {
     height: 100px;
     width: 100%;
+    overflow: hidden;
 }
 
 .expression-images .thumb {
