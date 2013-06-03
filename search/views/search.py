@@ -3,12 +3,15 @@
 
 import json
 import os
+import string
+
+from nltk import word_tokenize, sent_tokenize
+from pycaustic import Scraper
 
 from django.conf import settings
 
 from dist.bingsearch import BingSearchAPI
 from dist.googletranslate import GoogleTranslator
-from pycaustic import Scraper
 from utils.api import APIView, ErrorResponse
 
 
@@ -24,10 +27,11 @@ class SearchAPIView(APIView):
         self.source = request.GET.get(u'source', u'').lower()
         self.target = request.GET.get(u'target', u'en').lower()
         self.query_types = request.GET.getlist(u'query_type', [])
+        self.words = self.tokenize_words(self.expression)
         # TODO: key, callback
 
         # Query format check
-        if not self.expression:
+        if not self.expression or not self.words:
             raise ErrorResponse(u"'expression' can't be empty")
 
     def get(self, request):
@@ -78,7 +82,7 @@ class SearchAPIView(APIView):
     def query_images(self):
         bing = BingSearchAPI(settings.BING_API_KEY)
         # use exact search
-        expression = ' '.join([u'+{0}'.format(word) for word in self.expression.split(' ')])
+        expression = ' '.join([u'+{0}'.format(word) for word in self.words])
         # bing lib expects a bytestring
         expression = expression.encode('utf8')
         response = bing.search(u'image', expression, {
@@ -115,7 +119,7 @@ class SearchAPIView(APIView):
             return None
         else:
             definitions = []
-            for word in self.expression.split():
+            for word in self.words:
                 definition = {
                     "word": word
                 }
@@ -138,3 +142,14 @@ class SearchAPIView(APIView):
 
         # No definitions found
         return None
+
+    def tokenize_words(self, expression):
+        """
+        Returns a list of individual words contained in the expression, stripped of
+        punctuation.
+        """
+        tokens = [token for sentence in sent_tokenize(expression) 
+                        for token in word_tokenize(sentence)]
+        words = filter(lambda token: token not in string.punctuation, tokens)
+        return words
+
