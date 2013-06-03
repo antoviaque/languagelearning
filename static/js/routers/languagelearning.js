@@ -22,25 +22,27 @@ define([
         },
 
         initialize: function (options) {
-            this._searchBoxView = new SearchBoxView({router: this});
-            this._expressionView = new ExpressionView({router: this});
+            this._searchBoxView = new SearchBoxView({router: this}).render();
+            this._expressionView = new ExpressionView({router: this}).render();
         },
 
         home: function () {
             $header.hide();
-            this._searchBoxView.render().$el.detach().appendTo($horizon.show());
+            this._searchBoxView.$el.detach().appendTo($horizon.show());
+            this._expressionView.$el.detach();
         },
 
         expression: function (expression) {
             var self = this,
-                loadingDfd;
+                loadingDfd,
+                pathName = 'expression/' + encodeURIComponent(expression);
 
-            this.navigate('expression/' + expression);
+            this.navigate(pathName);
 
             $horizon.hide();
             this._searchBoxView.expression = expression;
             this._searchBoxView.render().$el.detach().appendTo($header.show());
-            this._expressionView.render().$el.appendTo($mainDiv.show());
+            this._expressionView.$el.appendTo($mainDiv.show());
             loadingDfd = this._expressionView.loading();
 
             searchAdapter.search(expression).done(function (expressionModel) {
