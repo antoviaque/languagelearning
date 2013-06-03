@@ -84,6 +84,10 @@
                 }, 400);
             });
 
+            it('should change the cursor to loading', function () {
+                expect($('body').css('cursor')).to.equal('progress');
+            });
+
             it('should update the url', function () {
                 expect(window.location.pathname).to.equal('/expression/' + expression);
             });
@@ -283,6 +287,10 @@
                         expect($loading.is(':visible')).to.be(false);
                         done();
                     }, 800);
+                });
+
+                it('should change the cursor back to normal', function () {
+                    expect($('body').css('cursor')).to.equal('auto');
                 });
 
                 it('should display the original expression', function () {

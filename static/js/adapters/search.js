@@ -22,6 +22,7 @@ define([
     }
 
     function SearchAdapter(expression) {
+        this._inProgress = 0;
     }
 
     /**
@@ -36,7 +37,18 @@ define([
             }
         }
 
-        var $dfd = this.$dfd = new $.Deferred();
+        this._inProgress += 1;
+        $('body').css('cursor', 'progress');
+
+        var $dfd = this.$dfd = new $.Deferred(),
+            self = this;
+
+        $dfd.always(function () {
+            self._inProgress -= 1;
+            if (self._inProgress === 0) {
+                $('body').css('cursor', 'auto');
+            }
+        });
 
         if (_.has(cache, expression)) {
             if (cache[expression] === null) {
@@ -73,7 +85,9 @@ define([
                     }));
                 }
             });
+
         }
+
         return $dfd.promise();
     };
 

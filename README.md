@@ -51,6 +51,17 @@ directory and avoid having to reload the server during development):
 
 Then go to http://localhost:8000
 
+### In production
+
+To compile static assets, run
+
+    $ make build
+
+This will compile and uglify all assets into `static/build`.  You will then 
+need to set up a proxy to serve all assets at `static` from `static/build`.
+The proxy is responsible for gziping all content if you want to have it
+compressed.
+
 Running the tests
 -----------------
 
