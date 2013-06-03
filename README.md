@@ -18,6 +18,10 @@ Install the dependencies:
     $ mkvirtualenv languagelearning
     $ pip install -r requirements.txt
 
+Download the corpus data for the nltk library:
+
+    $ make update-nltk
+
 Configuration
 -------------
 

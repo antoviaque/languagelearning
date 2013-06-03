@@ -318,3 +318,44 @@ class SearchAPITest(APITest):
                         force=True,
                         tags={u'word':'bezeichnen'})
         ])
+
+    @patch('search.views.search.GoogleTranslator')
+    @patch('search.views.search.Scraper')
+    @patch('search.views.search.BingSearchAPI')
+    def test_api_search_no_punctuation(self, MockBingSearchAPI, MockPycausticScraper, 
+                                       MockGoogleTranslator):
+        """
+        Words lookup should not include punctuation
+        http://tickets.farsides.com/issues/1057
+        """
+
+        # Mock definitions
+        mock_definitions = {'definition': []}
+        mock_scraper = self.set_mock_definitions_scrape(MockPycausticScraper, mock_definitions)
+
+        # Predetermine image results
+        def mock_search(*args, **kwargs):
+            return { u'd': { u'results': [{ u'Image': []}]}}
+        mock_bing = self.set_mock_images_search(MockBingSearchAPI, mock_search)
+
+        # Predetermine translation results
+        def mock_translate(*args, **kwargs):
+            return {
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'call',
+                            u'detectedSourceLanguage': u'fr'
+                        }]
+                    }
+                }
+        self.set_mock_translate(MockGoogleTranslator, mock_translate)
+
+        response = self.client.get(u'/api/v1/search?expression=bonjour%2C+comment+%C3%A7a+va%3F&query_type=images&query_type=definitions')
+        self.assertEqual(response.status_code, 200, response.content)
+        
+        words = [call[2]['tags']['word'] for call in mock_scraper.mock_calls]
+        self.assertItemsEqual(words, ['bonjour', 'comment', '\xc3\xa7a', 'va'])
+
+        search_expression = [call[1][1] for call in mock_bing.mock_calls]
+        self.assertItemsEqual(search_expression, ['+bonjour +comment +\xc3\xa7a +va'])
+

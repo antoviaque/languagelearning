@@ -34,3 +34,9 @@ build:
 	#   catching errors here.
 	${UGLIFYJS} -c -m -o static/build/js/vendor/require.js \
 	    static/build/js/vendor/require.js
+
+update-nltk:
+	@echo Downloading corpus files for nltk library...
+	python -m nltk.downloader punkt
+
+	
