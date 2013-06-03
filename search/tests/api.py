@@ -203,6 +203,36 @@ class SearchAPITest(APITest):
                           self.client.get, 
                           u'/api/v1/search?expression=bom%20dia%20e%C3%A8%C3%89%C9%98&query_type=translation')
 
+    @patch('search.views.search.GoogleTranslator')
+    def test_api_search_translation_unsupported_language_pair(self, MockGoogleTranslator):
+        """
+        When Google Translate doesn't support a <source> -> <destination> translation
+        Should behave like when language pair is supported, but can't translate the sentence
+        """
+        def mock_translate(*args, **kwargs):
+            return {u'error': {u'code': 400, u'message': u'Bad language pair: {0}'}}
+        mock_translator = self.set_mock_translate(MockGoogleTranslator, mock_translate)
+        
+        # Language detection
+        def mock_detect(*args, **kwargs):
+            return {u'data': {u'detections': [[{
+                    u'isReliable': True, 
+                    u'confidence': 0.81517069, 
+                    u'language': u'pt'
+                }]]}}
+        mock_translator.detect.side_effect = mock_detect
+
+        response = self.client.get(u'/api/v1/search?expression=oy%2C+tudo+bem%3F%20e%C3%A8%C3%89%C9%98&query_type=translation')
+        self.api_check(response, 200, {
+                u'expression': u'oy, tudo bem? eèÉɘ',
+                u'results': {
+                    u'translation': u'oy, tudo bem? eèÉɘ'
+                }, 
+                u'source': u'pt', 
+                u'status': u'success', 
+                u'target': u'en'
+            })
+        
     def set_mock_images_search(self, MockBingSearchAPI, mock_search):
         # Mock class instance
         mock_bing = Mock()

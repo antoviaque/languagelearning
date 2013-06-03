@@ -69,13 +69,22 @@ class SearchAPIView(APIView):
         response = translator.translate(expression, source=self.source, target=self.target)
 
         if u'error' in response:
-            raise ErrorResponse(json.dumps(response[u'error']))
+            # When Google can't translate between language pairs, still detect source & proceed
+            if 'message' in response['error'] and \
+                    response['error']['message'] == 'Bad language pair: {0}':
+                source_response = translator.detect(expression)
+                self.source = source_response['data']['detections'][0][0]['language']
+                # Return the source text to mirror GT's behavior when it can't translate
+                translated_text = self.expression
+            else:
+                raise ErrorResponse(json.dumps(response[u'error']))
         
-        translation = response[u'data'][u'translations'][0]
-        translated_text = translation[u'translatedText']
+        else:
+            translation = response[u'data'][u'translations'][0]
+            translated_text = translation[u'translatedText']
 
-        if not self.source and u'detectedSourceLanguage' in translation:
-            self.source = translation[u'detectedSourceLanguage']
+            if not self.source and u'detectedSourceLanguage' in translation:
+                self.source = translation[u'detectedSourceLanguage']
 
         return translated_text
 
