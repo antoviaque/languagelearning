@@ -80,17 +80,20 @@
 
         describe("after submitting an expression for translation", function () {
             var exampleImageUrl = '/static/test/fixtures/example.jpeg',
+                serverCallSpy,
                 expression,
                 server;
 
             beforeEach(function () {
                 server = sinon.fakeServer.create();
+                serverCallSpy = sinon.spy(server, "handleRequest");
                 expression = Math.random().toString(36).substring(7);
                 $('input.search-text').val(expression);
                 $('form.search-form').trigger('submit');
             });
 
             afterEach(function () {
+                server.handleRequest.restore();
                 server.restore();
             });
 
@@ -339,6 +342,24 @@
                     expect($('ol li', $definitions.get(0))).to.have.length(2);
                     expect($('h2', $definitions.get(1)).text()).to.contain('dia');
                     expect($('ol li', $definitions.get(1))).to.have.length(4);
+                });
+
+                describe('when the user hits the "back" button', function () {
+                    var callback = sinon.spy(),
+                        priorView;
+
+                    beforeEach(function () {
+                        priorView = $('#expression').html();
+                        history.back();
+                    });
+
+                    it('should use the cache instead of the server', function () {
+                        expect(serverCallSpy.callCount).to.equal(1);
+                    });
+
+                    it('should display the last view', function () {
+                        expect(priorView).to.eql($('#expression').html());
+                    });
                 });
             });
         });
