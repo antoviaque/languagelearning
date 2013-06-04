@@ -7,9 +7,8 @@ define([
     'views/base',
     'text!templates/expression.mustache',
     'json2',
-    'jquery',
-    'tracekit'
-], function (_, mustache, BaseView, expressionTemplate, json, $, tracekit) {
+    'jquery'
+], function (_, mustache, BaseView, expressionTemplate, json, $) {
     "use strict";
 
     return BaseView.extend({
