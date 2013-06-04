@@ -36,9 +36,14 @@ define([
         },
 
         submit: function (evt) {
-            evt.preventDefault();
+            var expression = $('input.search-text', this.$el).val(),
+                source = $('.languages .source'),
+                sourceName = (source && source.val()) || 'auto',
+                target = $('.languages .target'),
+                targetName = (target && target.val()) || 'en';
 
-            this._router.expression($('input.search-text', this.$el).val());
+            evt.preventDefault();
+            this._router.expression(sourceName, targetName, expression);
             return false;
         }
     });
