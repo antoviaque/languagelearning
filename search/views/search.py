@@ -34,7 +34,7 @@ class SearchAPIView(APIView):
         if not self.expression or not self.words:
             raise ErrorResponse(u"'expression' can't be empty")
 
-    def get(self, request):
+    def progressive_get(self, request):
         self.fetch_parameters(request)
         if not self.query_types:
             raise ErrorResponse(u'No query type specified')
@@ -45,15 +45,15 @@ class SearchAPIView(APIView):
         for query_type in (u'translation', u'images', u'definitions'):
             if query_type in self.query_types:
                 results[query_type] = getattr(self, u'query_{0}'.format(query_type))() 
+                yield {
+                        u'expression': self.expression,
+                        u'source': self.source,
+                        u'target': self.target,
+                        u'status': u'success',
+                        u'results': results
+                    }
 
-        return self.render_to_response({
-                u'expression': self.expression,
-                u'source': self.source,
-                u'target': self.target,
-                u'status': u'success',
-                u'results': results
-            })
-    
+
     def handle_error(self, request, e):
         return self.render_to_response({
                 u'expression': self.expression,

@@ -8,11 +8,15 @@ from django.utils import simplejson as json
 # View Mixins #######################################################
 
 class JSONResponseMixin(object):
-    def render_to_response(self, context, **httpresponse_kwargs):
+    def render_to_response(self, context, progressive=False, **httpresponse_kwargs):
         """Returns a JSON response containing 'context' as payload"""
 
-        return self.get_json_response(self.convert_context_to_json(context), 
-                                      **httpresponse_kwargs)
+        if progressive:
+            return u'{content}\n{separators}[PROGRESSIVE_RESPONSE_END]{separators}\n'\
+                    .format(content=self.convert_context_to_json(context), separators=u'='*5)
+        else:
+            return self.get_json_response(self.convert_context_to_json(context), 
+                                          **httpresponse_kwargs)
 
     def get_json_response(self, content, **httpresponse_kwargs):
         """Construct an `HttpResponse` object."""
