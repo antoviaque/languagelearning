@@ -22,6 +22,11 @@ define([
         },
 
         initialize: function (options) {
+            var $loadingSpinner = $('.js-loading-spinner');
+            $loadingSpinner.fadeOut(100, function () {
+                $loadingSpinner.remove();
+            });
+            $('body').css('cursor', 'auto');
             this._searchBoxView = new SearchBoxView({router: this}).render();
             this._expressionView = new ExpressionView({router: this}).render();
         },
@@ -46,8 +51,9 @@ define([
             loadingDfd = this._expressionView.loading();
 
             searchAdapter.search(expression).done(function (expressionModel) {
-                self._expressionView.model = expressionModel;
-                self._expressionView.render();
+                self._expressionView.render(expressionModel);
+            }).fail(function (expressionModel) {
+                self._expressionView.render(expressionModel);
             }).always(function () {
                 loadingDfd.resolve();
             });

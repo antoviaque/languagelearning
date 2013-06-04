@@ -1,6 +1,10 @@
 
 /* Helpers *****************************/
 
+body {
+	cursor: progress;
+}
+
 .horizon {
 	text-align: center;
 	position: absolute;
@@ -26,6 +30,7 @@
 	z-index: 1000;
 	background-image: url('../img/translucent.png');
 	background-repeat: repeat-x repeat-y;
+	cursor: progress;
 }
 
 .base-loading .base-loading-spinner {

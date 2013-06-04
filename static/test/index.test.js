@@ -4,7 +4,18 @@
 (function () {
     "use strict";
 
-    describe("The index page", function () {
+    describe("The pre-JS page", function () {
+        it("has a loading spinner", function () {
+            expect($('.js-loading-spinner')).to.have.length(1);
+            expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(1);
+        });
+
+        it("has made page-wide loading spinner", function () {
+            expect($('body').css('cursor')).to.equal('progress');
+        });
+    });
+
+    describe("The loaded index page", function () {
 
         /**
          * Set a document.ready callback after any others would have been set.
@@ -14,7 +25,16 @@
                 $(document).ready(function () {
                     done();
                 });
-            }, 1);
+            }, 200);
+        });
+
+        it("has no loading spinner", function () {
+            expect($('.js-loading-spinner')).to.have.length(0);
+            expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(0);
+        });
+
+        it("has reset the cursor to auto", function () {
+            expect($('body').css('cursor')).to.equal('auto');
         });
 
         it("has a search box", function () {
@@ -59,15 +79,40 @@
         });
 
         describe("after submitting an expression for translation", function () {
-            var server,
-                expression = "hello, world!";
+            var exampleImageUrl = '/static/test/fixtures/example.jpeg',
+                expression,
+                server;
 
             beforeEach(function () {
                 server = sinon.fakeServer.create();
+                expression = Math.random().toString(36).substring(7);
+                $('input.search-text').val(expression);
+                $('form.search-form').trigger('submit');
+            });
+
+            afterEach(function () {
+                server.restore();
+            });
+
+            it('should display a loading indicator', function (done) {
+                var $loading = $('.base-loading');
+                expect($loading.length).to.equal(1);
+                setTimeout(function () {
+                    expect($loading.is(':visible')).to.be(true);
+                    expect(Number($loading.css('opacity'))).not.to.equal(0);
+                    done();
+                }, 400);
+            });
+
+            it('should change the cursor to loading', function () {
+                expect($('body').css('cursor')).to.equal('progress');
+            });
+
+            it('should update the url', function () {
+                expect(window.location.pathname).to.equal('/expression/' + expression);
             });
 
             describe("if the expression is in English", function () {
-                var expression = "hello, world!";
 
                 describe("if no other target language has been specified", function () {
 
@@ -86,8 +131,6 @@
                                                JSON.stringify(content)
                                            ]);
 
-                        $('input.search-text').val(expression);
-                        $('form.search-form').trigger('submit');
                         server.respond();
                     });
 
@@ -98,7 +141,6 @@
             });
 
             describe("if the expression is not clearly in any language", function () {
-                var expression = "lskdjgls";
 
                 beforeEach(function () {
                     var content = {
@@ -128,8 +170,7 @@
 
             describe("if the expression is in a language besides English", function () {
 
-                var expression = 'bom dia',
-                    exampleImageUrl = '/static/test/fixtures/example.jpeg';
+                var exampleImageUrl = '/static/test/fixtures/example.jpeg';
 
                 beforeEach(function () {
                     var content = {
@@ -171,75 +212,134 @@
                     $('input.search-text').val(expression);
                     $('form.search-form').trigger('submit');
                 });
+            });
 
-                it('should display a loading indicator', function (done) {
-                    var $loading = $('.base-loading');
-                    expect($loading.length).to.equal(1);
-                    setTimeout(function () {
-                        expect($loading.is(':visible')).to.be(true);
-                        expect(Number($loading.css('opacity'))).not.to.equal(0);
-                        done();
-                    }, 400);
-                });
+            describe('after the server has responded unsuccessfully', function () {
 
-                it('should change the cursor to loading', function () {
-                    expect($('body').css('cursor')).to.equal('progress');
-                });
+                describe('with an expected 400', function () {
 
-                it('should update the url', function () {
-                    expect(window.location.pathname).to.equal('/expression/' + expression);
-                });
-
-                describe('after the server has responded', function () {
+                    var msg = 'Unable to translate the phrase';
 
                     beforeEach(function () {
+                        var content = {
+                            "expression": expression,
+                            "source": "pt",
+                            "status": "error",
+                            "target": "en",
+                            "error": msg
+                        };
+                        server.respondWith("GET", /\/api\/v1\/search/, [400,
+                                           { "Content-Type": "application/json" },
+                                           JSON.stringify(content)]);
+
                         server.respond();
                     });
 
-                    it('should no longer display a loading indicator', function (done) {
-                        var $loading = $('.base-loading');
-                        setTimeout(function () {
-                            expect($loading.is(':visible')).to.be(false);
-                            done();
-                        }, 800);
+                    it('lets the user know the phrase could not be translated', function () {
+                        expect($('.error').length).to.equal(1);
+                        expect($('.error').is(':visible')).to.be(true);
+                        expect($('.error').text()).to.contain(msg);
+                        expect($('.error').text()).to.contain('Sorry, an error has occurred');
+                    });
+                });
+
+                describe('with an uncontrolled error', function () {
+
+                    beforeEach(function () {
+                        server.respondWith("GET", /\/api\/v1\/search/, [500,
+                                           { "Content-Type": "text/html" },
+                                           "<html><head><title>Error</title></head><body>An error has occurred</body></html>"]);
+
+                        server.respond();
                     });
 
-                    it('should change the cursor back to normal', function () {
-                        expect($('body').css('cursor')).to.equal('auto');
-                    });
-
-                    it('should display the original expression', function () {
-                        expect($('.search-text').is(':visible')).to.equal(true);
-                        expect($('.search-text').val()).to.equal(expression);
-                    });
-
-                    it('should display a translation', function () {
-                        expect($('#expression').is(':visible')).to.equal(true);
-                        expect($('#translation').text()).to.equal('good day');
-                    });
-
-                    it('should display an image', function () {
-                        expect($('.expression-images .thumb').length).to.equal(1);
-                        expect($('.expression-images .thumb').attr('src')).to.equal(exampleImageUrl);
-                    });
-
-                    it('should display all images resized to 100px height', function () {
-                        expect($('.expression-images .thumb').height()).to.equal(100);
-                    });
-
-                    it('should display all translations', function () {
-                        var $definitions = $('.expression-definition');
-                        expect($definitions).to.have.length(2);
-                        expect($('h2', $definitions.get(0)).text()).to.contain('bom');
-                        expect($('ol li', $definitions.get(0))).to.have.length(2);
-                        expect($('h2', $definitions.get(1)).text()).to.contain('dia');
-                        expect($('ol li', $definitions.get(1))).to.have.length(4);
+                    it('lets the user know the phrase could not be translated', function () {
+                        expect($('.error').length).to.equal(1);
+                        expect($('.error').is(':visible')).to.be(true);
+                        expect($('.error').text()).to.contain('Sorry, an error has occurred');
                     });
                 });
             });
 
-            afterEach(function () {
-                server.restore();
+            describe('after the server has responded successfully', function () {
+
+                beforeEach(function () {
+                    var content = {
+                        "expression": expression,
+                        "results": {
+                            "translation": "good day",
+                            "images": [{
+                                "meta": {
+                                    "engine": "bing images"
+                                },
+                                "size": ["100", "144"],
+                                "url": exampleImageUrl
+                            }],
+                            "definitions": [{
+                                "word": "bom",
+                                "sentences": [
+                                    "que corresponde plenamente ao que \xc3\xa9 exigido, desejado ou esperado quanto \xc3\xa0 sua natureza, adequa\xc3\xa7\xc3\xa3o, fun\xc3\xa7\xc3\xa3o, efic\xc3\xa1cia, funcionamento etc. (falando de ser ou coisa)",
+                                    "moralmente correto em suas atitudes, de acordo com quem julga"
+                                ]
+                            }, {
+                                "word": "dia",
+                                "sentences": [
+                                    'espa\xc3\xa7o de tempo correspondente \xc3\xa0 rota\xc3\xa7\xc3\xa3o da Terra, que equivale a 23 horas, 56 minutos e 4 segundos',
+                                    'espa\xc3\xa7o de 24 horas',
+                                    'parte do dia (da defini\xc3\xa7\xc3\xa3o 1) entre o amanhecer e o p\xc3\xb4r-do-sol',
+                                    '(F\xc3\xadsica) unidade de medida de tempo equivalente a 86400 segundos e que \xc3\xa9 simbolizada por d'
+                                ]
+                            }]
+                        },
+                        "source": "pt",
+                        "status": "success",
+                        "target": "en"
+                    };
+                    server.respondWith("GET", /\/api\/v1\/search/, [200,
+                                       { "Content-Type": "application/json" },
+                                       JSON.stringify(content)]);
+                    server.respond();
+                });
+
+                it('should no longer display a loading indicator', function (done) {
+                    setTimeout(function () {
+                        var $loading = $('.base-loading');
+                        expect($loading.is(':visible')).to.be(false);
+                        done();
+                    }, 1000);
+                });
+
+                it('should change the cursor back to normal', function () {
+                    expect($('body').css('cursor')).to.equal('auto');
+                });
+
+                it('should display the original expression', function () {
+                    expect($('.search-text').is(':visible')).to.equal(true);
+                    expect($('.search-text').val()).to.equal(expression);
+                });
+
+                it('should display a translation', function () {
+                    expect($('#expression').is(':visible')).to.equal(true);
+                    expect($('#translation').text()).to.equal('good day');
+                });
+
+                it('should display an image', function () {
+                    expect($('.expression-images .thumb').length).to.equal(1);
+                    expect($('.expression-images .thumb').attr('src')).to.equal(exampleImageUrl);
+                });
+
+                it('should display all images resized to 100px height', function () {
+                    expect($('.expression-images .thumb').height()).to.equal(100);
+                });
+
+                it('should display all translations', function () {
+                    var $definitions = $('.expression-definition');
+                    expect($definitions).to.have.length(2);
+                    expect($('h2', $definitions.get(0)).text()).to.contain('bom');
+                    expect($('ol li', $definitions.get(0))).to.have.length(2);
+                    expect($('h2', $definitions.get(1)).text()).to.contain('dia');
+                    expect($('ol li', $definitions.get(1))).to.have.length(4);
+                });
             });
         });
     });
