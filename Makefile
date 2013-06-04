@@ -1,3 +1,5 @@
+.PHONY: test-client build update-nltk
+
 SHELL := /bin/bash
 NODE ?= $(shell which node)
 NPM ?= $(shell which npm)
