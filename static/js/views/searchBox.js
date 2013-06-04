@@ -40,7 +40,7 @@ define([
                 source = $('.languages .source'),
                 sourceName = (source && source.val()) || 'auto',
                 target = $('.languages .target'),
-                targetName = (target && target.val()) || 'en';
+                targetName = (target && target.val()) || 'en'; // TODO LOCAL
 
             evt.preventDefault();
             this._router.expression(sourceName, targetName, expression);

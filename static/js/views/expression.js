@@ -6,11 +6,11 @@ define([
     'mustache',
     'views/base',
     'text!templates/expression.mustache',
-    'text!fixtures/languages.json',
+    'fixtures/languages',
     'json2',
     'jquery',
     'tracekit'
-], function (_, mustache, BaseView, expressionTemplate, languagesJSON, json, $, tracekit) {
+], function (_, mustache, BaseView, expressionTemplate, languages, json, $, tracekit) {
     "use strict";
 
     return BaseView.extend({
@@ -25,21 +25,16 @@ define([
         'id': 'expression',
 
         initialize: function (options) {
-            this.languages = json.parse(languagesJSON);
         },
 
         render: function (model) {
-            var jsonModel = model ? model.toJSON() : {};
-
-            // TODO: Is this the right way to do this?
-            jsonModel.languages = this.languages;
+            var jsonModel = _.extend({},
+                model ? model.toJSON() : {},
+                { languages: languages.supported }
+            );
 
             this.$el.html(mustache.render(expressionTemplate, jsonModel));
 
-            // TODO: I'd rather do this on the template, but as far as I understand mustache,
-            // this would require to prepare two languages arrays, with a selected attribute set 
-            // on the right languages -- which would be quite an unecessary contortion. 
-            // Any better idea?
             $('.languages .source').val(jsonModel.source);
             $('.languages .target').val(jsonModel.target);
 
