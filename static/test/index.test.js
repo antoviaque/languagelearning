@@ -350,7 +350,7 @@
                 });
 
             });
-            
+
             describe('after the source language has been changed', function () {
                 beforeEach(function () {
                     var content = {
@@ -375,7 +375,7 @@
                                        JSON.stringify(content)]);
                     server.respond();
                 });
-        
+
                 afterEach(function () {
                     server.restore();
                 });
@@ -383,11 +383,11 @@
                 it('should update the url', function () {
                     expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
                 });
-                
+
                 it('should update the translation', function () {
                     expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
                 });
-                
+
                 it('should display a translation', function () {
                     expect($('#translation').text()).to.equal('bonjour');
                 });

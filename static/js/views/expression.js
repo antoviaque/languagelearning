@@ -28,7 +28,8 @@ define([
         },
 
         render: function (model) {
-            var jsonModel = _.extend({},
+            var jsonModel = _.extend(
+                {},
                 model ? model.toJSON() : {},
                 { languages: languages.supported }
             );
