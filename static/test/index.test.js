@@ -81,10 +81,17 @@
         describe("after submitting an expression for translation", function () {
             var exampleImageUrl = '/static/test/fixtures/example.jpeg',
                 expression,
+
+                // Set this to a three-element array [status code, headers
+                // object, content] for the next ajax request.
+                nextResponse,
                 server;
 
             beforeEach(function () {
                 server = sinon.fakeServer.create();
+                server.respondWith(function (req) {
+                    req.respond.apply(req, nextResponse);
+                });
                 expression = Math.random().toString(36).substring(7);
                 $('input.search-text').val(expression);
                 $('form.search-form').trigger('submit');
@@ -126,10 +133,8 @@
                             "status": "success",
                             "target": "en"
                         };
-                        server.respondWith("GET", /\/api\/v1\/search/,
-                                           [200, { "Content-Type": "application/json" },
-                                               JSON.stringify(content)
-                                           ]);
+                        nextResponse = [200, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
 
                         server.respond();
                     });
@@ -152,10 +157,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/,
-                                       [200, { "Content-Type": "application/json" },
-                                           JSON.stringify(content)
-                                       ]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
 
                     $('input.search-text').val(expression);
                     $('form.search-form').trigger('submit');
@@ -204,10 +207,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/,
-                                       [200, { "Content-Type": "application/json" },
-                                           JSON.stringify(content)
-                                       ]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
 
                     $('input.search-text').val(expression);
                     $('form.search-form').trigger('submit');
@@ -228,9 +229,8 @@
                             "target": "en",
                             "error": msg
                         };
-                        server.respondWith("GET", /\/api\/v1\/search/, [400,
-                                           { "Content-Type": "application/json" },
-                                           JSON.stringify(content)]);
+                        nextResponse = [400, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
 
                         server.respond();
                     });
@@ -246,9 +246,8 @@
                 describe('with an uncontrolled error', function () {
 
                     beforeEach(function () {
-                        server.respondWith("GET", /\/api\/v1\/search/, [500,
-                                           { "Content-Type": "text/html" },
-                                           "<html><head><title>Error</title></head><body>An error has occurred</body></html>"]);
+                        nextResponse = [500, { "Content-Type": "text/html" },
+                            "<html><head><title>Error</title></head><body>An error has occurred</body></html>"];
 
                         server.respond();
                     });
@@ -295,9 +294,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/, [200,
-                                       { "Content-Type": "application/json" },
-                                       JSON.stringify(content)]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                                       JSON.stringify(content)];
                     server.respond();
                 });
 
@@ -365,9 +363,8 @@
                         "target": "it"
                     };
 
-                    server.respondWith("GET", /\/api\/v1\/search/, [200,
-                                       { "Content-Type": "application/json" },
-                                       JSON.stringify(content)]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
                     $('.languages .target').val('it');
                     $('.languages .source').val('fr');
                     $('#searchbox .search-form').submit();
