@@ -81,10 +81,17 @@
         describe("after submitting an expression for translation", function () {
             var exampleImageUrl = '/static/test/fixtures/example.jpeg',
                 expression,
+
+                // Set this to a three-element array [status code, headers
+                // object, content] for the next ajax request.
+                nextResponse,
                 server;
 
             beforeEach(function () {
                 server = sinon.fakeServer.create();
+                server.respondWith(function (req) {
+                    req.respond.apply(req, nextResponse);
+                });
                 expression = Math.random().toString(36).substring(7);
                 $('input.search-text').val(expression);
                 $('form.search-form').trigger('submit');
@@ -109,7 +116,7 @@
             });
 
             it('should update the url', function () {
-                expect(window.location.pathname).to.equal('/expression/' + expression);
+                expect(window.location.pathname).to.equal('/expression/auto/en/' + expression);
             });
 
             describe("if the expression is in English", function () {
@@ -126,10 +133,8 @@
                             "status": "success",
                             "target": "en"
                         };
-                        server.respondWith("GET", /\/api\/v1\/search/,
-                                           [200, { "Content-Type": "application/json" },
-                                               JSON.stringify(content)
-                                           ]);
+                        nextResponse = [200, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
 
                         server.respond();
                     });
@@ -152,10 +157,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/,
-                                       [200, { "Content-Type": "application/json" },
-                                           JSON.stringify(content)
-                                       ]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
 
                     $('input.search-text').val(expression);
                     $('form.search-form').trigger('submit');
@@ -204,10 +207,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/,
-                                       [200, { "Content-Type": "application/json" },
-                                           JSON.stringify(content)
-                                       ]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
 
                     $('input.search-text').val(expression);
                     $('form.search-form').trigger('submit');
@@ -228,9 +229,8 @@
                             "target": "en",
                             "error": msg
                         };
-                        server.respondWith("GET", /\/api\/v1\/search/, [400,
-                                           { "Content-Type": "application/json" },
-                                           JSON.stringify(content)]);
+                        nextResponse = [400, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
 
                         server.respond();
                     });
@@ -246,9 +246,8 @@
                 describe('with an uncontrolled error', function () {
 
                     beforeEach(function () {
-                        server.respondWith("GET", /\/api\/v1\/search/, [500,
-                                           { "Content-Type": "text/html" },
-                                           "<html><head><title>Error</title></head><body>An error has occurred</body></html>"]);
+                        nextResponse = [500, { "Content-Type": "text/html" },
+                            "<html><head><title>Error</title></head><body>An error has occurred</body></html>"];
 
                         server.respond();
                     });
@@ -298,9 +297,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/, [200,
-                                       { "Content-Type": "application/json" },
-                                       JSON.stringify(content)]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                                       JSON.stringify(content)];
                     server.respond();
                 });
 
@@ -351,6 +349,51 @@
                     expect($noDefinitions).to.have.length(1);
                     expect($noDefinitions.text()).to.contain('no definitions found');
                 });
+
+                it('should display the source language detected', function () {
+                    expect($('.languages .source').val()).to.equal('pt');
+                });
+
+                it('should display the target language', function () {
+                    expect($('.languages .target').val()).to.equal('en');
+                });
+
+            });
+
+            describe('after the source language has been changed', function () {
+                beforeEach(function () {
+                    var content = {
+                        "expression": expression,
+                        "results": {
+                            "translation": "bonjour",
+                            "images": [],
+                            "definitions": [],
+                        },
+                        "source": "pt",
+                        "status": "success",
+                        "target": "it"
+                    };
+
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
+                    $('.languages .target').val('it');
+                    $('.languages .source').val('fr');
+                    $('#searchbox .search-form').submit();
+                    server.respond();
+                });
+
+                it('should update the url', function () {
+                    expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
+                });
+
+                it('should update the translation', function () {
+                    expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
+                });
+
+                it('should display a translation', function () {
+                    expect($('#translation').text()).to.equal('bonjour');
+                });
+
             });
         });
     });
