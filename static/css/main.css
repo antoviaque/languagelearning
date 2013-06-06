@@ -5,6 +5,10 @@ body {
 	cursor: progress;
 }
 
+.main.wrapper {
+    position: relative;
+}
+
 .horizon {
 	text-align: center;
 	position: absolute;
@@ -15,10 +19,6 @@ body {
 	overflow: visible;
 	visibility: visible;
 	display: block
-}
-
-.loading-container {
-	position: relative;
 }
 
 .base-loading {
@@ -116,6 +116,12 @@ header #searchbox {
 }
 
 /* Results *****************************/
+
+.languages {
+    position: absolute;
+    right: 0px;
+    top: 11px;
+}
 
 .expression-images {
     height: 100px;

@@ -109,7 +109,7 @@
             });
 
             it('should update the url', function () {
-                expect(window.location.pathname).to.equal('/expression/' + expression);
+                expect(window.location.pathname).to.equal('/expression/auto/en/' + expression);
             });
 
             describe("if the expression is in English", function () {
@@ -340,6 +340,58 @@
                     expect($('h2', $definitions.get(1)).text()).to.contain('dia');
                     expect($('ol li', $definitions.get(1))).to.have.length(4);
                 });
+
+                it('should display the source language detected', function () {
+                    expect($('.languages .source').val()).to.equal('pt');
+                });
+
+                it('should display the target language', function () {
+                    expect($('.languages .target').val()).to.equal('en');
+                });
+
+            });
+
+            describe('after the source language has been changed', function () {
+                beforeEach(function () {
+                    var content = {
+                        "expression": expression,
+                        "results": {
+                            "translation": "bonjour",
+                            "images": [],
+                            "definitions": [],
+                        },
+                        "source": "pt",
+                        "status": "success",
+                        "target": "it"
+                    };
+
+                    server.restore();
+                    server = sinon.fakeServer.create();
+                    $('.languages .target').val('it');
+                    $('.languages .source').val('fr');
+                    $('#searchbox .search-form').submit();
+                    server.respondWith("GET", /\/api\/v1\/search/, [200,
+                                       { "Content-Type": "application/json" },
+                                       JSON.stringify(content)]);
+                    server.respond();
+                });
+
+                afterEach(function () {
+                    server.restore();
+                });
+
+                it('should update the url', function () {
+                    expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
+                });
+
+                it('should update the translation', function () {
+                    expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
+                });
+
+                it('should display a translation', function () {
+                    expect($('#translation').text()).to.equal('bonjour');
+                });
+
             });
         });
     });
