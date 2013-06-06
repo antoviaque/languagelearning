@@ -82,6 +82,9 @@ class APIView(JSONResponseMixin, View):
         return self.render_to_response(context)
     
     def handle_progressive(self, progressive_handler, request):
+        # TODO the PROGRESSIVE_RESPONSE_BEGIN could be removed: if you
+        # uncomment the time.sleep(1) in `search/views/search.py:51`, the
+        # progressive loading is unaffected in FF either way.
         yield u'{separators}[PROGRESSIVE_RESPONSE_BEGIN]{separators}\n'.format(separators=u'='*500)
         for progressive_context in progressive_handler(request):
             yield self.render_to_response(progressive_context, progressive=True)

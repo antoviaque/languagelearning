@@ -56,7 +56,8 @@ requirejs([
     'backbone',
     'json2',
     'tracekit',
-    'routers/languagelearning'
+    'routers/languagelearning',
+    'utils/ajaxStreaming'
 ], function ($, _, backbone, json, tracekit, LanguageLearningRouter) {
     "use strict";
 

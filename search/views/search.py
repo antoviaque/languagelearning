@@ -45,6 +45,10 @@ class SearchAPIView(APIView):
         for query_type in (u'translation', u'images', u'definitions'):
             if query_type in self.query_types:
                 results[query_type] = getattr(self, u'query_{0}'.format(query_type))() 
+                # TODO remove me: this can be uncommented to visually test
+                # progressive loading in different browsers.
+                # import time
+                # time.sleep(1)
                 yield {
                         u'expression': self.expression,
                         u'source': self.source,

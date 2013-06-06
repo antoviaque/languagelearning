@@ -26,7 +26,8 @@ define([
     }
 
     /**
-     * Obtains promise that will contain an expression model when resolved.
+     * Obtains promise that will contain an expression model when resolved,
+     * and partial expression models as progress.
      * @param {String} expression The expression to be translated.
      * @returns {jQuery.Promise}
      */
@@ -62,6 +63,7 @@ define([
                 dataType: 'json',
                 url: '/api/v1/search?' +
                     $.param({
+                        progressive: true,
                         //key: '',
                         expression: expression,
                         //source: '',  // TODO
@@ -71,7 +73,10 @@ define([
                             'images',
                             'definitions'
                         ]
-                    }, true)
+                    }, true),
+                progress: function (content) {
+                    $dfd.notify(new ExpressionModel(content));
+                }
             }).success(function (content, status, jqXHR) {
                 addToCache(expression, content);
                 $dfd.resolve(new ExpressionModel(content));
