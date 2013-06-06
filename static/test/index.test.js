@@ -82,11 +82,18 @@
             var exampleImageUrl = '/static/test/fixtures/example.jpeg',
                 serverCallSpy,
                 expression,
+
+                // Set this to a three-element array [status code, headers
+                // object, content] for the next ajax request.
+                nextResponse,
                 server;
 
             beforeEach(function () {
                 server = sinon.fakeServer.create();
                 serverCallSpy = sinon.spy(server, "handleRequest");
+                server.respondWith(function (req) {
+                    req.respond.apply(req, nextResponse);
+                });
                 expression = Math.random().toString(36).substring(7);
                 $('input.search-text').val(expression);
                 $('form.search-form').trigger('submit');
@@ -112,7 +119,7 @@
             });
 
             it('should update the url', function () {
-                expect(window.location.pathname).to.equal('/expression/' + expression);
+                expect(window.location.pathname).to.equal('/expression/auto/en/' + expression);
             });
 
             describe("if the expression is in English", function () {
@@ -129,10 +136,8 @@
                             "status": "success",
                             "target": "en"
                         };
-                        server.respondWith("GET", /\/api\/v1\/search/,
-                                           [200, { "Content-Type": "application/json" },
-                                               JSON.stringify(content)
-                                           ]);
+                        nextResponse = [200, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
 
                         server.respond();
                     });
@@ -155,10 +160,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/,
-                                       [200, { "Content-Type": "application/json" },
-                                           JSON.stringify(content)
-                                       ]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                        JSON.stringify(content)];
 
                     $('input.search-text').val(expression);
                     $('form.search-form').trigger('submit');
@@ -168,52 +171,6 @@
                 it("informs the user the language couldn't be identified", function () {
                     expect($('.error').text()).to.contain("couldn't identify the language");
                     expect($('.error').text()).to.contain(expression);
-                });
-            });
-
-            describe("if the expression is in a language besides English", function () {
-
-                var exampleImageUrl = '/static/test/fixtures/example.jpeg';
-
-                beforeEach(function () {
-                    var content = {
-                        "expression": expression,
-                        "results": {
-                            "translation": "good day",
-                            "images": [{
-                                "meta": {
-                                    "engine": "bing images"
-                                },
-                                "size": ["100", "144"],
-                                "url": exampleImageUrl
-                            }],
-                            "definitions": [{
-                                "word": "bom",
-                                "sentences": [
-                                    "que corresponde plenamente ao que \xc3\xa9 exigido, desejado ou esperado quanto \xc3\xa0 sua natureza, adequa\xc3\xa7\xc3\xa3o, fun\xc3\xa7\xc3\xa3o, efic\xc3\xa1cia, funcionamento etc. (falando de ser ou coisa)",
-                                    "moralmente correto em suas atitudes, de acordo com quem julga"
-                                ]
-                            }, {
-                                "word": "dia",
-                                "sentences": [
-                                    'espa\xc3\xa7o de tempo correspondente \xc3\xa0 rota\xc3\xa7\xc3\xa3o da Terra, que equivale a 23 horas, 56 minutos e 4 segundos',
-                                    'espa\xc3\xa7o de 24 horas',
-                                    'parte do dia (da defini\xc3\xa7\xc3\xa3o 1) entre o amanhecer e o p\xc3\xb4r-do-sol',
-                                    '(F\xc3\xadsica) unidade de medida de tempo equivalente a 86400 segundos e que \xc3\xa9 simbolizada por d'
-                                ]
-                            }]
-                        },
-                        "source": "pt",
-                        "status": "success",
-                        "target": "en"
-                    };
-                    server.respondWith("GET", /\/api\/v1\/search/,
-                                       [200, { "Content-Type": "application/json" },
-                                           JSON.stringify(content)
-                                       ]);
-
-                    $('input.search-text').val(expression);
-                    $('form.search-form').trigger('submit');
                 });
             });
 
@@ -231,9 +188,8 @@
                             "target": "en",
                             "error": msg
                         };
-                        server.respondWith("GET", /\/api\/v1\/search/, [400,
-                                           { "Content-Type": "application/json" },
-                                           JSON.stringify(content)]);
+                        nextResponse = [400, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
 
                         server.respond();
                     });
@@ -249,9 +205,8 @@
                 describe('with an uncontrolled error', function () {
 
                     beforeEach(function () {
-                        server.respondWith("GET", /\/api\/v1\/search/, [500,
-                                           { "Content-Type": "text/html" },
-                                           "<html><head><title>Error</title></head><body>An error has occurred</body></html>"]);
+                        nextResponse = [500, { "Content-Type": "text/html" },
+                            "<html><head><title>Error</title></head><body>An error has occurred</body></html>"];
 
                         server.respond();
                     });
@@ -298,9 +253,8 @@
                         "status": "success",
                         "target": "en"
                     };
-                    server.respondWith("GET", /\/api\/v1\/search/, [200,
-                                       { "Content-Type": "application/json" },
-                                       JSON.stringify(content)]);
+                    nextResponse = [200, { "Content-Type": "application/json" },
+                                       JSON.stringify(content)];
                     server.respond();
                 });
 
@@ -359,6 +313,49 @@
 
                     it('should display the last view', function () {
                         expect(priorView).to.eql($('#expression').html());
+                    });
+                });
+
+                it('should display the source language detected', function () {
+                    expect($('.languages .source').val()).to.equal('pt');
+                });
+
+                it('should display the target language', function () {
+                    expect($('.languages .target').val()).to.equal('en');
+                });
+
+                describe('after the source language has been changed', function () {
+                    beforeEach(function () {
+                        var content = {
+                            "expression": expression,
+                            "results": {
+                                "translation": "bonjour",
+                                "images": [],
+                                "definitions": [],
+                            },
+                            "source": "pt",
+                            "status": "success",
+                            "target": "it"
+                        };
+
+                        nextResponse = [200, { "Content-Type": "application/json" },
+                            JSON.stringify(content)];
+                        $('.languages .target').val('it');
+                        $('.languages .source').val('fr');
+                        $('#searchbox .search-form').submit();
+                        server.respond();
+                    });
+
+                    it('should update the url', function () {
+                        expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
+                    });
+
+                    it('should update the translation', function () {
+                        expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
+                    });
+
+                    it('should display a translation', function () {
+                        expect($('#translation').text()).to.equal('bonjour');
                     });
                 });
             });

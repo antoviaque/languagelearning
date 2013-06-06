@@ -11,6 +11,7 @@ requirejs.config({
         'models': 'models',
         'collections': 'collections',
         'views': 'views',
+        'fixtures': 'fixtures',
         'templates': '../templates',
         'backbone': 'vendor/backbone',
         'jquery': 'vendor/jquery-1.9.1',

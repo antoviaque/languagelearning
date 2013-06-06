@@ -30,7 +30,7 @@ define([
      * @param {String} expression The expression to be translated.
      * @returns {jQuery.Promise}
      */
-    SearchAdapter.prototype.search = function (expression) {
+    SearchAdapter.prototype.search = function (source, target, expression) {
         if (this.$dfd) {
             if (this.$dfd.state() === 'pending') {
                 this.$dfd.reject();
@@ -41,7 +41,8 @@ define([
         $('body').css('cursor', 'progress');
 
         var $dfd = this.$dfd = new $.Deferred(),
-            self = this;
+            self = this,
+            pathname = window.location.pathname;
 
         $dfd.always(function () {
             self._inProgress -= 1;
@@ -50,11 +51,11 @@ define([
             }
         });
 
-        if (_.has(cache, expression)) {
-            if (cache[expression] === null) {
+        if (_.has(cache, pathname)) {
+            if (cache[pathname] === null) {
                 $dfd.reject();
             } else {
-                $dfd.resolve(new ExpressionModel(cache[expression]));
+                $dfd.resolve(new ExpressionModel(cache[pathname]));
             }
         } else {
             $.ajax({
@@ -64,8 +65,8 @@ define([
                     $.param({
                         //key: '',
                         expression: expression,
-                        //source: '',  // TODO
-                        //target: '', // TODO
+                        source: source,
+                        target: target,
                         query_type: [
                             'translation',
                             'images',
@@ -73,10 +74,10 @@ define([
                         ]
                     }, true)
             }).success(function (content, status, jqXHR) {
-                addToCache(expression, content);
+                addToCache(pathname, content);
                 $dfd.resolve(new ExpressionModel(content));
             }).error(function (jqXHR) {
-                addToCache(expression, null);
+                addToCache(pathname, null);
                 try {
                     $dfd.reject(new ExpressionModel(json.parse(jqXHR.responseText)));
                 } catch (err) {
