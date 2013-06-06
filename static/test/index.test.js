@@ -365,19 +365,13 @@
                         "target": "it"
                     };
 
-                    server.restore();
-                    server = sinon.fakeServer.create();
-                    $('.languages .target').val('it');
-                    $('.languages .source').val('fr');
-                    $('#searchbox .search-form').submit();
                     server.respondWith("GET", /\/api\/v1\/search/, [200,
                                        { "Content-Type": "application/json" },
                                        JSON.stringify(content)]);
+                    $('.languages .target').val('it');
+                    $('.languages .source').val('fr');
+                    $('#searchbox .search-form').submit();
                     server.respond();
-                });
-
-                afterEach(function () {
-                    server.restore();
                 });
 
                 it('should update the url', function () {
