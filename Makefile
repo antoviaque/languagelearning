@@ -36,6 +36,10 @@ build:
 	#   catching errors here.
 	${UGLIFYJS} -c -m -o static/build/js/vendor/require.js \
 	    static/build/js/vendor/require.js
+	#
+	# Remove any testing scripts.
+	#
+	rm -rf static/build/test
 
 update-nltk:
 	@echo Downloading corpus files for nltk library...
