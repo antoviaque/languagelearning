@@ -17,17 +17,6 @@
 
     describe("The loaded index page", function () {
 
-        /**
-         * Set a document.ready callback after any others would have been set.
-         */
-        beforeEach(function (done) {
-            setTimeout(function () {
-                $(document).ready(function () {
-                    done();
-                });
-            }, 200);
-        });
-
         it("has no loading spinner", function () {
             expect($('.js-loading-spinner')).to.have.length(0);
             expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(0);
@@ -101,14 +90,11 @@
                 server.restore();
             });
 
-            it('should display a loading indicator', function (done) {
+            it('should display a loading indicator', function () {
                 var $loading = $('.base-loading');
                 expect($loading.length).to.equal(1);
-                setTimeout(function () {
-                    expect($loading.is(':visible')).to.be(true);
-                    expect(Number($loading.css('opacity'))).not.to.equal(0);
-                    done();
-                }, 400);
+                expect($loading.is(':visible')).to.be(true);
+                expect(Number($loading.css('opacity'))).not.to.equal(0);
             });
 
             it('should change the cursor to loading', function () {
@@ -299,12 +285,9 @@
                     server.respond();
                 });
 
-                it('should no longer display a loading indicator', function (done) {
-                    setTimeout(function () {
-                        var $loading = $('.base-loading');
-                        expect($loading.is(':visible')).to.be(false);
-                        done();
-                    }, 1000);
+                it('should no longer display a loading indicator', function () {
+                    var $loading = $('.base-loading');
+                    expect($loading.is(':visible')).to.be(false);
                 });
 
                 it('should change the cursor back to normal', function () {
