@@ -71,15 +71,21 @@
             if (loadedLibs === libs.length) {
                 loadTests();
             }
+        },
+
+        /**
+         * Loads all libraries in a loop.
+         */
+        loadLibs = function () {
+            var i;
+            for (i = 0; i < libs.length; i += 1) {
+                createScript(libs[i]).onload = libLoaded;
+            }
         };
 
-    /**
-     * Load all libraries in a loop.
-     */
-    (function () {
-        var i;
-        for (i = 0; i < libs.length; i += 1) {
-            createScript(libs[i]).onload = libLoaded;
-        }
-    }());
+    if (document.readyState === "complete") {
+        loadLibs();
+    } else {
+        window.addEventListener("load", loadLibs, false);
+    }
 }());
