@@ -56,6 +56,12 @@ requirejs([
 ], function ($, _, backbone, json, LanguageLearningRouter) {
     "use strict";
 
+    // TODO would be better to use fake timers and keep animations during
+    // testing, but recent jQuery/Sinon doesn't seem to cooperate.
+    if (window.mochaPhantomJS) {
+        $.fx.off = true;
+    }
+
     $(document).ready(function () {
         var router = new LanguageLearningRouter();
 

@@ -36,15 +36,10 @@ build:
 	MANGLE=( "vendor/require.js" "vendor/tracekit.js" ) && \
 	for F in "$${BEAUTIFY[@]}"; do ${UGLIFYJS} -c -b -o $${DIR}/$${F} $${DIR}/$${F}; done && \
 	for F in "$${MANGLE[@]}"; do ${UGLIFYJS} -c -m -o $${DIR}/$${F} $${DIR}/$${F}; done
-	#    echo $${FILE} \
-	#done
-	    #${UGLIFYJS} -c -b -o $${DIR}/$${F} $${DIR}/$${F} \
-	done
-	#done && \
-	#for FILE in $${MANGLE} \
-	#do \
-	#    ${UGLIFYJS} -c -m -o $${BUILD_DIR}/$${FILE} $${BUILD_DIR}/$${FILE} \
-	#done
+	#
+	# Remove any testing scripts.
+	#
+	rm -rf static/build/test
 
 update-nltk:
 	@echo Downloading corpus files for nltk library...
