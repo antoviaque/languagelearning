@@ -274,6 +274,9 @@
                                     'parte do dia (da defini\xc3\xa7\xc3\xa3o 1) entre o amanhecer e o p\xc3\xb4r-do-sol',
                                     '(F\xc3\xadsica) unidade de medida de tempo equivalente a 86400 segundos e que \xc3\xa9 simbolizada por d'
                                 ]
+                            }, {
+                                "word": "nodefinitions",
+                                "sentences": []
                             }]
                         },
                         "source": "pt",
@@ -313,13 +316,21 @@
                     expect($('.expression-images .thumb').height()).to.equal(100);
                 });
 
-                it('should display all translations', function () {
+                it('should display all definitions', function () {
                     var $definitions = $('.expression-definition');
-                    expect($definitions).to.have.length(2);
+                    expect($definitions).to.have.length(3);
                     expect($('h2', $definitions.get(0)).text()).to.contain('bom');
                     expect($('ol li', $definitions.get(0))).to.have.length(2);
                     expect($('h2', $definitions.get(1)).text()).to.contain('dia');
                     expect($('ol li', $definitions.get(1))).to.have.length(4);
+                    expect($('h2', $definitions.get(2)).text()).to.contain('nodefinitions');
+                    expect($('ol li', $definitions.get(2))).to.have.length(0);
+                });
+
+                it('should display apology for words without definitions', function () {
+                    var $noDefinitions = $('.expression-definition:contains("nodefinitions")');
+                    expect($noDefinitions).to.have.length(1);
+                    expect($noDefinitions.text()).to.contain('no definitions found');
                 });
 
                 it('should display the source language detected', function () {
