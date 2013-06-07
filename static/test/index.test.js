@@ -17,6 +17,12 @@
 
     describe("The loaded index page", function () {
 
+        beforeEach(function (done) {
+            setTimeout(function () {
+                done();
+            }, 0);
+        });
+
         it("has no loading spinner", function () {
             expect($('#js-loading-spinner')).to.have.length(0);
             expect($('#js-loading-spinner * .base-loading-spinner')).to.have.length(0);
@@ -48,11 +54,13 @@
                     TraceKit.report(generateError());
                 } catch (err) { }
 
+                // Tracekit schedules the generation of the stacktrace using
+                // setTimeout 0, so we have to test after that.
                 setTimeout(function () {
                     expect($('#reload-error').is(':visible')).to.be(true);
                     expect($('#reload-error').text()).to.contain('reload the page');
                     done();
-                }, 200);
+                }, 0);
             });
         });
 
