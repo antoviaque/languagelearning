@@ -136,7 +136,7 @@ class SearchAPIView(APIView):
                 resp = scraper.scrape(instruction,
                                       force=True,
                                       tags={u'word': word.encode('utf8')})
-                if resp.flattened_values:
+                if hasattr(resp, 'flattened_values') and resp.flattened_values:
                     val = resp.flattened_values[u'definition']
                     if isinstance(val, list):
                         sentences = [v[u'definition'].decode('unicode-escape') for v in val]
