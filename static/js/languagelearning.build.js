@@ -15,7 +15,6 @@
         'json2': 'vendor/json2',
         'mustache': 'vendor/mustache',
         'text': 'vendor/text',
-        'tracekit': 'vendor/tracekit',
         'underscore': 'vendor/underscore'
     },
 
@@ -35,9 +34,6 @@
         },
         'underscore': {
             exports: '_'
-        },
-        'tracekit': {
-            exports: 'TraceKit'
         }
     },
 

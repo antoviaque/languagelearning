@@ -1,13 +1,13 @@
 /*jslint browser:true*/
-/*globals describe, it, $, beforeEach, afterEach, expect, sinon, xit*/
+/*globals describe, it, $, beforeEach, afterEach, expect, sinon, xit, TraceKit*/
 
 (function () {
     "use strict";
 
     describe("The pre-JS page", function () {
         it("has a loading spinner", function () {
-            expect($('.js-loading-spinner')).to.have.length(1);
-            expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(1);
+            expect($('#js-loading-spinner')).to.have.length(1);
+            expect($('#js-loading-spinner * .base-loading-spinner')).to.have.length(1);
         });
 
         it("has made page-wide loading spinner", function () {
@@ -18,8 +18,8 @@
     describe("The loaded index page", function () {
 
         it("has no loading spinner", function () {
-            expect($('.js-loading-spinner')).to.have.length(0);
-            expect($('.js-loading-spinner * .base-loading-spinner')).to.have.length(0);
+            expect($('#js-loading-spinner')).to.have.length(0);
+            expect($('#js-loading-spinner * .base-loading-spinner')).to.have.length(0);
         });
 
         it("has reset the cursor to auto", function () {
@@ -28,6 +28,32 @@
 
         it("has a search box", function () {
             expect($('#searchbox')).to.have.length(1);
+        });
+
+        describe("when there's a requirejs timeout", function () {
+
+            it("displays an error asking the user to reload the page", function (done) {
+
+                var generateError = function () {
+                    var err = new Error('Load timeout for modules: \nhttp://requirejs.org/docs/errors.html#timeout');
+                    err.requireType = 'timeout';
+                    try {
+                        throw (err);
+                    } catch (caughtErr) {
+                        return caughtErr;
+                    }
+                };
+
+                try {
+                    TraceKit.report(generateError());
+                } catch (err) { }
+
+                setTimeout(function () {
+                    expect($('#reload-error').is(':visible')).to.be(true);
+                    expect($('#reload-error').text()).to.contain('reload the page');
+                    done();
+                }, 200);
+            });
         });
 
         describe("The search box", function () {

@@ -18,7 +18,6 @@ requirejs.config({
         'json2': 'vendor/json2',
         'mustache': 'vendor/mustache',
         'text': 'vendor/text',
-        'tracekit': 'vendor/tracekit',
         'underscore': 'vendor/underscore'
     },
 
@@ -38,9 +37,6 @@ requirejs.config({
         },
         'underscore': {
             exports: '_'
-        },
-        'tracekit': {
-            exports: 'TraceKit'
         }
     },
 
@@ -56,9 +52,8 @@ requirejs([
     'underscore',
     'backbone',
     'json2',
-    'tracekit',
     'routers/languagelearning'
-], function ($, _, backbone, json, tracekit, LanguageLearningRouter) {
+], function ($, _, backbone, json, LanguageLearningRouter) {
     "use strict";
 
     // TODO would be better to use fake timers and keep animations during

@@ -22,20 +22,20 @@ build:
 	#
 	if ! [ -e ${UGLIFYJS} ]; then ${NPM} install uglify-js@2.3.6; fi
 	#
-	# Run uglifyJS compressor on languagelearning.main.js
+	# Run uglifyjs compressor.
 	#
-	#   Code is compressed, but not mangled, and is beautified.  The loss
-	#   in compression is partly compensated by gzip, and makes debugging
-	#   much, much easier.
-	${UGLIFYJS} -c -b -o static/build/js/languagelearning.main.js \
-	    static/build/js/languagelearning.main.js
+	#   For some files, code is compressed, but not mangled, and is
+	#   beautified.  The loss in compression is partly compensated by gzip,
+	#   and makes debugging much, much easier.
 	#
-	# Run uglifyJS compressor on require.js:
+	#   For other files, code is compressed and mangled, giving us the
+	#   best compression.
 	#
-	#   Code is compressed and mangled, since we're not worried about
-	#   catching errors here.
-	${UGLIFYJS} -c -m -o static/build/js/vendor/require.js \
-	    static/build/js/vendor/require.js
+	DIR="static/build/js" \
+	BEAUTIFY=( "languagelearning.main.js" "languagelearning.emergency.js" ) \
+	MANGLE=( "vendor/require.js" "vendor/tracekit.js" ) && \
+	for F in "$${BEAUTIFY[@]}"; do ${UGLIFYJS} -c -b -o $${DIR}/$${F} $${DIR}/$${F}; done && \
+	for F in "$${MANGLE[@]}"; do ${UGLIFYJS} -c -m -o $${DIR}/$${F} $${DIR}/$${F}; done
 	#
 	# Remove any testing scripts.
 	#
@@ -44,5 +44,3 @@ build:
 update-nltk:
 	@echo Downloading corpus files for nltk library...
 	python -m nltk.downloader punkt
-
-	

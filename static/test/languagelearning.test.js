@@ -17,7 +17,6 @@ requirejs.config({
         'json2': 'vendor/json2',
         'mustache': 'vendor/mustache',
         'text': 'vendor/text',
-        'tracekit': 'vendor/tracekit',
         'underscore': 'vendor/underscore',
         'test': '../test',
         'fixtures': '../test/fixtures',
@@ -42,9 +41,6 @@ requirejs.config({
         },
         'underscore': {
             exports: '_'
-        },
-        'tracekit': {
-            exports: 'TraceKit'
         },
         'expect': {
             exports: 'expect'

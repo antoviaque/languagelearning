@@ -22,7 +22,7 @@ define([
         },
 
         initialize: function (options) {
-            var $loadingSpinner = $('.js-loading-spinner');
+            var $loadingSpinner = $('#js-loading-spinner');
             $loadingSpinner.fadeOut(100, function () {
                 $loadingSpinner.remove();
             });

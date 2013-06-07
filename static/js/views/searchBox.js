@@ -7,9 +7,8 @@ define([
     'views/base',
     'text!templates/searchBox.mustache',
     'json2',
-    'jquery',
-    'tracekit'
-], function (_, mustache, BaseView, searchBoxTemplate, json, $, tracekit) {
+    'jquery'
+], function (_, mustache, BaseView, searchBoxTemplate, json, $) {
     "use strict";
 
     return BaseView.extend({
