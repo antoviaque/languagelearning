@@ -2,6 +2,7 @@
 # Imports ###########################################################
 
 import json
+import logging
 import os
 import string
 
@@ -13,6 +14,11 @@ from django.conf import settings
 from dist.bingsearch import BingSearchAPI
 from dist.googletranslate import GoogleTranslator
 from utils.api import APIView, ErrorResponse
+
+
+# Logging ###########################################################
+
+logger = logging.getLogger(__name__)
 
 
 # Classes ###########################################################
@@ -34,7 +40,7 @@ class SearchAPIView(APIView):
         if not self.expression or not self.words:
             raise ErrorResponse(u"'expression' can't be empty")
 
-    def progressive_get(self, request):
+    def progressive_get(self, request, progressive=True):
         self.fetch_parameters(request)
         if not self.query_types:
             raise ErrorResponse(u'No query type specified')
@@ -44,24 +50,31 @@ class SearchAPIView(APIView):
         # dependencies for the different queries.
         for query_type in (u'translation', u'images', u'definitions'):
             if query_type in self.query_types:
-                results[query_type] = getattr(self, u'query_{0}'.format(query_type))() 
-                yield {
-                        u'expression': self.expression,
-                        u'source': self.source,
-                        u'target': self.target,
-                        u'status': u'success',
-                        u'results': results
-                    }
+                try:
+                    results[query_type] = getattr(self, u'query_{0}'.format(query_type))() 
+                    yield self.render_to_response({
+                            u'expression': self.expression,
+                            u'source': self.source,
+                            u'target': self.target,
+                            u'status': u'success',
+                            u'results': results
+                        }, progressive=progressive)
+                except ErrorResponse as e:
+                    yield self.handle_error(request, e, progressive=progressive)
+                except Exception as e:
+                    # TODO LOCAL
+                    e.description = u'Sorry! An error has occurred.'
+                    logger.exception(e)
+                    yield self.handle_error(request, e, progressive=progressive)
 
-
-    def handle_error(self, request, e):
+    def handle_error(self, request, e, progressive=False):
         return self.render_to_response({
                 u'expression': self.expression,
                 u'source': self.source,
                 u'target': self.target,
                 u'status': u'error',
                 u'error': e.description
-            }, status=400)
+            }, status=400, progressive=progressive)
     
     def query_translation(self):
         translator = GoogleTranslator()

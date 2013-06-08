@@ -2,6 +2,7 @@
 # Imports ###########################################################
 
 from django import http
+from django.conf import settings
 from django.utils import simplejson as json
 
 
@@ -12,8 +13,9 @@ class JSONResponseMixin(object):
         """Returns a JSON response containing 'context' as payload"""
 
         if progressive:
-            return u'{content}\n{separators}[PROGRESSIVE_RESPONSE_END]{separators}\n'\
-                    .format(content=self.convert_context_to_json(context), separators=u'='*5)
+            return u'{content}\n{separator}\n'\
+                    .format(content=self.convert_context_to_json(context), 
+                            separator=settings.PROGRESSIVE_RESPONSE_SEPARATOR)
         else:
             return self.get_json_response(self.convert_context_to_json(context), 
                                           **httpresponse_kwargs)

@@ -36,7 +36,7 @@ class APIView(JSONResponseMixin, View):
     """
     def dispatch(self, request, *args, **kwargs):
         try:
-            return self.progressive_dispatch(request, *args, **kwargs)
+            return self.dispatch_progressive(request, *args, **kwargs)
         except ErrorResponse as e:
             return self.handle_error(request, e)
         except Exception as e:
@@ -48,7 +48,7 @@ class APIView(JSONResponseMixin, View):
                 logger.exception(e)
                 return self.handle_error(request, e)
 
-    def progressive_dispatch(self, request, *args, **kwargs):
+    def dispatch_progressive(self, request, *args, **kwargs):
         """
         Uses special self.progressive_<httpverb>() methods when defined, otherwise 
         use the normal self.<httpverb>() method
@@ -65,24 +65,38 @@ class APIView(JSONResponseMixin, View):
 
         if progressive_handler:
             if progressive_requested:
-                return HttpResponse(self.handle_progressive(progressive_handler, request), 
-                                    content_type='application/json')
+                return self.handle_progressive(progressive_handler, request)
             else:
-                return self.handle_noprogressive(progressive_handler, request)
+                return self.handle_noprogressive_emulate(progressive_handler, request)
         else:
             if progressive_requested:
                 return self.http_method_not_allowed(request, *args, **kwargs)
             else:
                 return super(APIView, self).dispatch(request, *args, **kwargs)
 
-    def handle_noprogressive(self, progressive_handler, request):
-        context = {}
-        for progressive_context in progressive_handler(request):
-            context = progressive_context
-        return self.render_to_response(context)
+    def handle_noprogressive_emulate(self, progressive_handler, request):
+        """
+        Emulated non-progressive response - iterates over a progressive generator,
+        only returning its last answer
+
+        Since raising an exception from an iterator stops it, the handler is responsible
+        for catching exceptions & formatting them as one of the responses
+        """
+        response = None
+        for progressive_response in progressive_handler(request, progressive=False):
+            response = progressive_response
+        return response
     
     def handle_progressive(self, progressive_handler, request):
-        yield u'{separators}[PROGRESSIVE_RESPONSE_BEGIN]{separators}\n'.format(separators=u'='*500)
-        for progressive_context in progressive_handler(request):
-            yield self.render_to_response(progressive_context, progressive=True)
+        """
+        Progressive answer - iterates over a progressive generator, sending responses
+        to the browser progressively as they are yielded
+        
+        Since raising an exception from an iterator stops it, the handler is responsible
+        for catching exceptions & formatting them as one of the responses
+        """
+        response = HttpResponse(progressive_handler(request, progressive=True),
+                                content_type='application/json')
+        response['X-Progressive-Response-Separator'] = settings.PROGRESSIVE_RESPONSE_SEPARATOR
+        return response
 
