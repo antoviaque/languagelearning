@@ -18,11 +18,11 @@ define([
     return backbone.Router.extend({
         routes: {
             "": "home",
-            "expression/:expression": "expression"
+            "expression/:source/:target/:expression": "expression"
         },
 
         initialize: function (options) {
-            var $loadingSpinner = $('.js-loading-spinner');
+            var $loadingSpinner = $('#js-loading-spinner');
             $loadingSpinner.fadeOut(100, function () {
                 $loadingSpinner.remove();
             });
@@ -37,12 +37,17 @@ define([
             this._expressionView.$el.detach();
         },
 
-        expression: function (expression) {
+        expression: function (source, target, expression) {
             var self = this,
                 loadingDfd,
-                pathName = 'expression/' + encodeURIComponent(expression);
+                pathName = 'expression/' + encodeURIComponent(source) + '/' 
+                                         + encodeURIComponent(target) + '/'
+                                         + encodeURIComponent(expression);
 
             this.navigate(pathName);
+            if (source === 'auto') {
+                source = '';
+            }
 
             $horizon.hide();
             this._searchBoxView.expression = expression;
@@ -50,7 +55,7 @@ define([
             this._expressionView.$el.appendTo($mainDiv.show());
             loadingDfd = this._expressionView.loading();
 
-            searchAdapter.search(expression).done(function (expressionModel) {
+            searchAdapter.search(source, target, expression).done(function (expressionModel) {
                 self._expressionView.render(expressionModel);
             }).fail(function (expressionModel) {
                 self._expressionView.render(expressionModel);

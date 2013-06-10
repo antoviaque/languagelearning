@@ -1,4 +1,19 @@
 {{#results}}
+<div class="languages">
+  <select class="source">
+    {{#languages}}
+    <option value="{{code}}">{{name}}</option>
+    {{/languages}}
+  </select>
+  &rarr;
+  <select class="target">
+    <!-- TODO: Remove code duplication - how do we reference a partial template file for the build? -->
+    {{#languages}}
+    <option value="{{code}}">{{name}}</option>
+    {{/languages}}
+  </select>
+</div>
+
 <h1 id="translation">{{{translation}}}</h1>
 
 <div class="expression-images">
