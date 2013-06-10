@@ -4,9 +4,8 @@
 define([
     'jquery',
     'underscore',
-    'json2',
-    'models/expression'
-], function ($, _, json, ExpressionModel) {
+    'json2'
+], function ($, _, json) {
     "use strict";
 
     var cache = {},
@@ -26,24 +25,27 @@ define([
     }
 
     /**
-     * Obtains promise that will contain an expression model when resolved,
-     * and partial expression models as progress.
+     * Obtains promise that will contain data for an expression model when
+     * resolved, and partial data as progress.
      * @param {String} expression The expression to be translated.
      * @returns {jQuery.Promise}
      */
     SearchAdapter.prototype.search = function (source, target, expression) {
+
         if (this.$dfd) {
             if (this.$dfd.state() === 'pending') {
                 this.$dfd.reject();
             }
         }
 
+        source = source === 'auto' ? '' : source;
+
         this._inProgress += 1;
         $('body').css('cursor', 'progress');
 
         var $dfd = this.$dfd = new $.Deferred(),
             self = this,
-            pathname = window.location.pathname;
+            key = json.stringify([source, target, expression]);
 
         $dfd.always(function () {
             self._inProgress -= 1;
@@ -52,12 +54,8 @@ define([
             }
         });
 
-        if (_.has(cache, pathname)) {
-            if (cache[pathname] === null) {
-                $dfd.reject();
-            } else {
-                $dfd.resolve(new ExpressionModel(cache[pathname]));
-            }
+        if (_.has(cache, key)) {
+            $dfd.resolve(cache[key]);
         } else {
             $.ajax({
                 method: 'get',
@@ -76,22 +74,21 @@ define([
                         ]
                     }, true),
                 progress: function (content) {
-                    $dfd.notify(new ExpressionModel(content));
+                    $dfd.notify(content);
                 }
             }).success(function (content, status, jqXHR) {
-                addToCache(pathname, content);
-                $dfd.resolve(new ExpressionModel(content));
+                addToCache(key, content);
+                $dfd.resolve(content);
             }).error(function (jqXHR) {
-                addToCache(pathname, null);
+                //addToCache(key, null);
                 try {
-                    $dfd.reject(new ExpressionModel(json.parse(jqXHR.responseText)));
+                    $dfd.resolve(json.parse(jqXHR.responseText));
                 } catch (err) {
-                    $dfd.reject(new ExpressionModel({
+                    $dfd.resolve({
                         "error": "please try again later" // TODO LOCAL
-                    }));
+                    });
                 }
             });
-
         }
 
         return $dfd.promise();

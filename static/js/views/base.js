@@ -23,9 +23,13 @@ define([
                 this.$loadingDiv = $('<div class="base-loading"><div class="base-loading-spinner" /></div>');
             }
             var $el = this.$el,
-                $dfd = new $.Deferred(),
+                $dfd = this.$loadingDfd = this.$loadingDfd || new $.Deferred(),
                 $loadingDiv = this.$loadingDiv,
                 $container = this.$container;
+
+            if ($dfd && $dfd.state() !== 'pending') {
+                $dfd = this.$loadingDfd = new $.Deferred();
+            }
 
             if ($container.parent().length === 0) {
                 $el.replaceWith($container);
@@ -43,6 +47,16 @@ define([
                 });
             });
             return $dfd;
+        },
+
+        /**
+         * End the display of the loading indicator, regardless of whether you
+         * kept track of its Deferred object.
+         */
+        endLoading: function () {
+            if (this.$loadingDfd) {
+                this.$loadingDfd.resolve();
+            }
         }
     });
 });

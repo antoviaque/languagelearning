@@ -43,12 +43,12 @@ define([
 
             searchAdapter.search(searchExpression)
                 .done(function (expression) {
-                    expect(expression).to.be.an(ExpressionModel);
-                    expect(expression.get('expression')).to.equal(searchExpression);
-                    expect(expression.get('source')).to.equal('pt');
-                    expect(expression.get('target')).to.equal('en');
+                    expect(expression).to.be.an(Object);
+                    expect(expression.expression).to.equal(searchExpression);
+                    expect(expression.source).to.equal('pt');
+                    expect(expression.target).to.equal('en');
 
-                    var results = expression.get('results');
+                    var results = expression.results;
                     expect(results.translation).to.equal('good day');
                     done();
 
