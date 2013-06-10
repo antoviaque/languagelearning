@@ -16,9 +16,12 @@ define([
      * @returns {String} The content.
      */
     var getResponse = function (content, splitter) {
-        var split = content
-            .split(splitter);
-        return split[split.length - 2];
+        if (splitter) {
+            var split = content.split(splitter);
+            return split[split.length - 2];
+        } else {
+            return content;
+        }
     },
 
         /**
@@ -36,15 +39,14 @@ define([
          * every time there is new content.  Content is separated by
          * `splitter`.
          * @param {XMLHttpResponse} xhr An AJAX response which is being loaded.
-         * @param {String} splitter A string that separates each section of
-         * progressive response.
-         * @param {Function} callback A funciton that will be called with the
+         * @param {Function} callback A function that will be called with the
          * text of the response each time it changes.
          * @returns {Interval} A reference to an interval that should be
          * cleared when the loop should end.
          */
-        loopWhileLoading = function (xhr, splitter, callback) {
-            var lastRespTextLength = 0;
+        loopWhileLoading = function (xhr, callback) {
+            var lastRespTextLength = 0,
+                splitter = readSplitter(xhr);
             return setInterval(function () {
                 // Update progress when length of response text
                 // changes.
@@ -54,7 +56,11 @@ define([
                     lastRespTextLength  = len;
                     resp = getResponse(xhr.responseText, splitter);
                     if (resp) {
-                        callback(json.parse(resp));
+                        try {
+                            callback(json.parse(resp));
+                        } catch (err) {
+                            callback(resp);
+                        }
                     }
                 }
             }, 100);
@@ -72,9 +78,9 @@ define([
                 var xhr = xhrFactory.apply(this, arguments);
                 function handleLoadStates() {
                     if (xhr.readyState === 3) {
-                        options._interval = loopWhileLoading(xhr,
-                                                             readSplitter(xhr),
-                                                             options.progress);
+                        if (!options._interval) {
+                            options._interval = loopWhileLoading(xhr, options.progress);
+                        }
                     } else if (xhr.readyState === 4) {
                         clearInterval(options._interval);
                     }
