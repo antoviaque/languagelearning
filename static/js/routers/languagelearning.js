@@ -40,7 +40,7 @@ define([
         expression: function (source, target, expression) {
             var self = this,
                 loadingDfd,
-                pathName = 'expression/' + encodeURIComponent(source) + '/' 
+                pathName = 'expression/' + encodeURIComponent(source) + '/'
                                          + encodeURIComponent(target) + '/'
                                          + encodeURIComponent(expression);
 
@@ -55,7 +55,11 @@ define([
             this._expressionView.$el.appendTo($mainDiv.show());
             loadingDfd = this._expressionView.loading();
 
-            searchAdapter.search(source, target, expression).done(function (expressionModel) {
+            searchAdapter.search(source, target, expression).progress(function (expressionModel) {
+                // TODO make it clear to user that loading is still in
+                // progress, without partially obstructing the view.
+                self._expressionView.render(expressionModel);
+            }).done(function (expressionModel) {
                 self._expressionView.render(expressionModel);
             }).fail(function (expressionModel) {
                 self._expressionView.render(expressionModel);

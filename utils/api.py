@@ -86,12 +86,12 @@ class APIView(JSONResponseMixin, View):
         for progressive_response in progressive_handler(request, progressive=False):
             response = progressive_response
         return response
-    
+
     def handle_progressive(self, progressive_handler, request):
         """
         Progressive answer - iterates over a progressive generator, sending responses
         to the browser progressively as they are yielded
-        
+
         Since raising an exception from an iterator stops it, the handler is responsible
         for catching exceptions & formatting them as one of the responses
         """
@@ -99,4 +99,3 @@ class APIView(JSONResponseMixin, View):
                                 content_type='application/json')
         response['X-Progressive-Response-Separator'] = settings.PROGRESSIVE_RESPONSE_SEPARATOR
         return response
-

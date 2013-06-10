@@ -52,7 +52,8 @@ requirejs([
     'underscore',
     'backbone',
     'json2',
-    'routers/languagelearning'
+    'routers/languagelearning',
+    'utils/ajaxStreaming'
 ], function ($, _, backbone, json, LanguageLearningRouter) {
     "use strict";
 
