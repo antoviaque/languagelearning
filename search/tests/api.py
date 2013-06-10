@@ -9,6 +9,9 @@ from mock import Mock, call, patch
 
 from django.conf import settings
 from django.test import TestCase
+from django.test.client import RequestFactory
+
+from search.views.search import SearchAPIView
 
 
 # Classes ###########################################################
@@ -16,6 +19,7 @@ from django.test import TestCase
 class APITest(TestCase):
 
     def setUp(self):
+        self.request_factory = RequestFactory()
         logging.disable(logging.CRITICAL)
 
         # Local configuration shouldn't change test results
@@ -188,15 +192,14 @@ class SearchAPITest(APITest):
                 u'target': u'en'
             })
        
-    @patch('search.views.search.GoogleTranslator')
-    def test_api_search_translation_error_exception_debug_on(self, MockGoogleTranslator):
+    @patch('search.views.search.sent_tokenize')
+    def test_api_search_error_exception_debug_on(self, mock_sent_tokenize):
         """
-        Translation throws an exception, with debug on
-        When debug is on, send back the exception description with the API answer
+        Throws an exception with debug on outside of yield loop
         """
-        def mock_translate(*args, **kwargs):
+        def mock_sent_tokenize_side_effect(*args, **kwargs):
             raise KeyError(u'test error one')
-        self.set_mock_translate(MockGoogleTranslator, mock_translate)
+        mock_sent_tokenize.side_effect = mock_sent_tokenize_side_effect
 
         settings.DEBUG = True
         self.assertRaises(KeyError, 
@@ -285,8 +288,11 @@ class SearchAPITest(APITest):
 
     def set_mock_definitions_scrape(self, MockPycausticScraper, definitions):
         def mock_response(*args, **kwargs):
-            resp = Mock()
-            resp.flattened_values = definitions
+            if definitions is None:
+                resp = Mock(spec=[])
+            else:
+                resp = Mock(spec=['flattened_values'])
+                resp.flattened_values = definitions
             return resp
 
         mock_scraper = Mock()
@@ -351,6 +357,43 @@ class SearchAPITest(APITest):
 
     @patch('search.views.search.GoogleTranslator')
     @patch('search.views.search.Scraper')
+    def test_api_search_definitions_failed(self, MockPycausticScraper, MockGoogleTranslator):
+        # Mock definitions
+        mock_scraper = self.set_mock_definitions_scrape(MockPycausticScraper, None)
+
+        # Predetermine translation results
+        def mock_translate(*args, **kwargs):
+            return {
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'call',
+                            u'detectedSourceLanguage': u'de'
+                        }]
+                    }
+                }
+
+        self.set_mock_translate(MockGoogleTranslator, mock_translate)
+        response = self.client.get(u'/api/v1/search?expression=bezeichnen&query_type=definitions')
+        self.api_check(response, 200, {
+                u'expression': u'bezeichnen',
+                u'results': {
+                    u'definitions': [{
+                        u'word': u'bezeichnen'
+                    }]
+                },
+                u'source': u'de',
+                u'status': u'success',
+                u'target': u'en'
+            })
+        self.assertEqual(mock_scraper.mock_calls, [
+            call.scrape(json.load(open('instructions/de.json')),
+                        force=True,
+                        tags={u'word':'bezeichnen'})
+        ])
+
+
+    @patch('search.views.search.GoogleTranslator')
+    @patch('search.views.search.Scraper')
     @patch('search.views.search.BingSearchAPI')
     def test_api_search_no_punctuation(self, MockBingSearchAPI, MockPycausticScraper, 
                                        MockGoogleTranslator):
@@ -388,4 +431,123 @@ class SearchAPITest(APITest):
 
         search_expression = [call[1][1] for call in mock_bing.mock_calls]
         self.assertItemsEqual(search_expression, ['+bonjour +comment +\xc3\xa7a +va'])
+
+    @patch('search.views.search.GoogleTranslator')
+    @patch('search.views.search.Scraper')
+    @patch('search.views.search.BingSearchAPI')
+    def test_api_search_progressive(self, MockBingSearchAPI, MockPycausticScraper, MockGoogleTranslator):
+        # Mock definitions
+        mock_definitions = {'definition': []}
+        self.set_mock_definitions_scrape(MockPycausticScraper, mock_definitions)
+
+        # Predetermine image results
+        def mock_search(*args, **kwargs):
+            return { u'd': { u'results': [{ u'Image': []}]}}
+        self.set_mock_images_search(MockBingSearchAPI, mock_search)
+
+        # Predetermine translation results
+        def mock_translate(*args, **kwargs):
+            return {
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'hi how are you? eèÉɘ',
+                            u'detectedSourceLanguage': u'fr'
+                        }]
+                    }
+                }
+        self.set_mock_translate(MockGoogleTranslator, mock_translate)
+
+        search_view = SearchAPIView()
+        request = self.request_factory.get(u'/api/v1/search?expression=bonjour%2C+comment+%C3%A7a+va%3F&query_type=translation&query_type=images&query_type=definitions&progressive=1')
+        response = search_view.dispatch(request)
+        self.assertEqual(response.status_code, 200, response.content)
+
+        self.assertEqual(response.get('X-Progressive-Response-Separator'),
+                         settings.PROGRESSIVE_RESPONSE_SEPARATOR)
+        responses = response.content.split(settings.PROGRESSIVE_RESPONSE_SEPARATOR)
+        self.assertEqual(len(responses), 4)
+        
+        self.assertEqual(json.loads(responses[0]), {
+                u'status': u'success', 
+                u'source': u'fr', 
+                u'expression': u'bonjour, comment \xe7a va?', 
+                u'results': {
+                    u'translation': u'hi how are you? e\xe8\xc9\u0258'
+                },
+                u'target': u'en'
+            })
+
+        self.assertEqual(json.loads(responses[1]), {
+                u'status': u'success', 
+                u'source': u'fr', 
+                u'expression': u'bonjour, comment \xe7a va?', 
+                u'results': {
+                    u'images': [], 
+                    u'translation': u'hi how are you? e\xe8\xc9\u0258'
+                }, u'target': u'en'
+            })
+
+        self.assertEqual(json.loads(responses[2]), {
+                u'status': u'success', 
+                u'source': u'fr', 
+                u'expression': u'bonjour, comment \xe7a va?', 
+                u'results': {
+                    u'definitions': [{u'sentences': [], u'word': u'bonjour'},
+                                     {u'sentences': [], u'word': u'comment'},
+                                     {u'sentences': [], u'word': u'\xe7a'},
+                                     {u'sentences': [], u'word': u'va'}],
+                    u'images': [], 
+                    u'translation': u'hi how are you? e\xe8\xc9\u0258'
+                }, u'target': u'en'
+            })
+        
+        self.assertEqual(responses[3].strip(), '')
+
+    @patch('search.views.search.GoogleTranslator')
+    @patch('search.views.search.BingSearchAPI')
+    def test_api_search_progressive_error(self, MockBingSearchAPI, MockGoogleTranslator):
+        # Error in image results
+        def mock_search(*args, **kwargs):
+            raise KeyError('test')
+        self.set_mock_images_search(MockBingSearchAPI, mock_search)
+
+        # Predetermine translation results
+        def mock_translate(*args, **kwargs):
+            return {
+                    u'data': {
+                        u'translations': [{
+                            u'translatedText': u'hi how are you? eèÉɘ',
+                            u'detectedSourceLanguage': u'fr'
+                        }]
+                    }
+                }
+        self.set_mock_translate(MockGoogleTranslator, mock_translate)
+
+        search_view = SearchAPIView()
+        request = self.request_factory.get(u'/api/v1/search?expression=bonjour%2C+comment+%C3%A7a+va%3F&query_type=translation&query_type=images&progressive=1')
+        response = search_view.dispatch(request)
+        self.assertEqual(response.status_code, 200, response.content)
+
+        responses = response.content.split(settings.PROGRESSIVE_RESPONSE_SEPARATOR)
+        self.assertEqual(len(responses), 3)
+        
+        self.assertEqual(json.loads(responses[0]), {
+                u'status': u'success', 
+                u'source': u'fr', 
+                u'expression': u'bonjour, comment \xe7a va?', 
+                u'results': {
+                    u'translation': u'hi how are you? e\xe8\xc9\u0258'
+                },
+                u'target': u'en'
+            })
+
+        self.assertEqual(json.loads(responses[1]), {
+                u'status': u'error', 
+                u'source': u'fr', 
+                u'expression': u'bonjour, comment \xe7a va?', 
+                u'target': u'en', 
+                u'error': u'Sorry! An error has occurred.'
+            })
+        
+        self.assertEqual(responses[2].strip(), '')
 

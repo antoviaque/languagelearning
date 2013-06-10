@@ -11,13 +11,13 @@ requirejs.config({
         'models': 'models',
         'collections': 'collections',
         'views': 'views',
+        'fixtures': 'fixtures',
         'templates': '../templates',
         'backbone': 'vendor/backbone',
         'jquery': 'vendor/jquery-1.9.1',
         'json2': 'vendor/json2',
         'mustache': 'vendor/mustache',
         'text': 'vendor/text',
-        'tracekit': 'vendor/tracekit',
         'underscore': 'vendor/underscore'
     },
 
@@ -37,9 +37,6 @@ requirejs.config({
         },
         'underscore': {
             exports: '_'
-        },
-        'tracekit': {
-            exports: 'TraceKit'
         }
     },
 
@@ -55,11 +52,16 @@ requirejs([
     'underscore',
     'backbone',
     'json2',
-    'tracekit',
     'routers/languagelearning',
     'utils/ajaxStreaming'
-], function ($, _, backbone, json, tracekit, LanguageLearningRouter) {
+], function ($, _, backbone, json, LanguageLearningRouter) {
     "use strict";
+
+    // TODO would be better to use fake timers and keep animations during
+    // testing, but recent jQuery/Sinon doesn't seem to cooperate.
+    if (window.mochaPhantomJS) {
+        $.fx.off = true;
+    }
 
     $(document).ready(function () {
         var router = new LanguageLearningRouter();

@@ -8,13 +8,13 @@
         'models': 'models',
         'collections': 'collections',
         'views': 'views',
+        'fixtures': 'fixtures',
         'templates': '../templates',
         'backbone': 'vendor/backbone',
         'jquery': 'vendor/jquery-1.9.1',
         'json2': 'vendor/json2',
         'mustache': 'vendor/mustache',
         'text': 'vendor/text',
-        'tracekit': 'vendor/tracekit',
         'underscore': 'vendor/underscore'
     },
 
@@ -34,9 +34,6 @@
         },
         'underscore': {
             exports: '_'
-        },
-        'tracekit': {
-            exports: 'TraceKit'
         }
     },
 

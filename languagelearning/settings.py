@@ -159,6 +159,9 @@ LOGGING = {
 # Path to scraper instructions.
 INSTRUCTIONS_DIR = spath('instructions')
 
+# Progressive responses
+PROGRESSIVE_RESPONSE_SEPARATOR = '=====[PROGRESSIVE_RESPONSE_END]====='
+
 # Use local settings, if any.
 try:
     from local_settings import *
