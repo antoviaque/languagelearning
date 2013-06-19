@@ -4,7 +4,7 @@ Language Learning
 Installation
 ------------
 
-Retreive the source
+Retrieve the source
 
     $ git clone https://github.com/antoviaque/languagelearning.git
 
