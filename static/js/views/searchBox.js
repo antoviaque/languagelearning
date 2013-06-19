@@ -22,27 +22,21 @@ define([
         'id': 'searchbox',
 
         initialize: function (options) {
-            this._router = options.router;
-            this.expression = '';
         },
 
         render: function () {
-            this.$el.html(mustache.render(searchBoxTemplate, {
-                expression: this.expression
-            }));
+            this.$el.html(mustache.render(searchBoxTemplate, this.model.toJSON()));
 
             return this;
         },
 
         submit: function (evt) {
-            var expression = $('input.search-text', this.$el).val(),
-                source = $('.languages .source'),
-                sourceName = (source && source.val()) || 'auto',
-                target = $('.languages .target'),
-                targetName = (target && target.val()) || 'en'; // TODO LOCAL
-
             evt.preventDefault();
-            this._router.expression(sourceName, targetName, expression);
+
+            this.model.set({
+                expression: $('input.search-text', this.$el).val()
+            });
+
             return false;
         }
     });

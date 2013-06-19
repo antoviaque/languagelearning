@@ -165,6 +165,11 @@
                     it("informs the user that they should specify another language", function () {
                         expect($('.error').text()).to.contain('please choose another language');
                     });
+
+                    it("provides the interface for them to choose another language", function () {
+                        expect($('.languages .target').is(':visible')).to.be(true);
+                        expect($('.languages .source').is(':visible')).to.be(true);
+                    });
                 });
             });
 
@@ -370,7 +375,7 @@
                             JSON.stringify(content)];
                         $('.languages .target').val('it');
                         $('.languages .source').val('fr');
-                        $('#searchbox .search-form').submit();
+                        $('.languages .source').trigger('change');
                         server.respond();
                     });
 
@@ -379,10 +384,6 @@
                     });
 
                     it('should update the translation', function () {
-                        expect(window.location.pathname).to.equal('/expression/fr/it/' + expression);
-                    });
-
-                    it('should display a translation', function () {
                         expect($('#translation').text()).to.equal('bonjour');
                     });
                 });
